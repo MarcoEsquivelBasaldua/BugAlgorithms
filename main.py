@@ -1,5 +1,15 @@
 import pygame
 
+# Colors
+SCREEN_COLOR   = (255, 255, 255)  # White
+TOOLBAR_COLOR  = (160, 160, 160)  # Gray
+ROBOT_COLOR    = (0, 0, 255)      # Blue
+GOAL_COLOR     = (255, 0, 0)      # Red
+OBSTACLE_COLOR = (0, 0, 0)        # Black
+PATH_COLOR     = (153, 255, 255)  # Light blue
+MESSAGE_COLOR  = (0, 0, 0)        # Black
+WARNING_COLOR  = (255, 0, 0)      # Red
+
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((900, 600))
@@ -11,9 +21,9 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
 
-        screen.fill((255, 255, 255))  # Fill the screen with white
-        toolsArea = pygame.Rect(0, 0, 200, 600)
-        pygame.draw.rect(screen, (255, 0, 0), toolsArea, width=0)
+        screen.fill(SCREEN_COLOR)  # Fill the screen with white
+        toolsBar = pygame.Rect(0, 0, 200, 600)
+        pygame.draw.rect(screen, TOOLBAR_COLOR, toolsBar, width=0)
 
         pygame.display.flip()    # Update the display
 
