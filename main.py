@@ -1,12 +1,16 @@
+import pygame
 import sys
 sys.path.insert(1, './src')
-import pygame
 import screenTools
-
 
 
 if __name__ == "__main__":
     pygame.init()
+
+    # Environment sizes
+    ENV_WIDTH     = 1200
+    ENV_LENGTH    = 800
+    TOOLBAR_WIDTH = 200
 
     # Colors
     SCREEN_COLOR         = (255, 255, 255)  # White
@@ -20,10 +24,13 @@ if __name__ == "__main__":
     MESSAGE_COLOR        = (0, 0, 0)        # Black
     WARNING_COLOR        = (255, 0, 0)      # Red
 
-    # Buttons
-    DRAW_OBSTACLE_BUTTON = screenTools.Button(10, 10, 100, 200, 'Draw obstacle', BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    screen = pygame.display.set_mode((1200, 800))
+    screen = pygame.display.set_mode((ENV_WIDTH, ENV_LENGTH))
     pygame.display.set_caption("Bug Algorithms")
+
+    # Buttons
+    
+    DRAW_OBSTACLE_BUTTON = screenTools.Button(10, 10, 100, 200, 'Draw obstacle', BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    
 
     running = True
     while running:
@@ -34,7 +41,7 @@ if __name__ == "__main__":
                 DRAW_OBSTACLE_BUTTON.handle_event(event)
 
         screen.fill(SCREEN_COLOR)  # Fill the screen with white
-        toolsBar = pygame.Rect(0, 0, 200, 600)
+        toolsBar = pygame.Rect(0, 0, TOOLBAR_WIDTH, ENV_LENGTH)
         pygame.draw.rect(screen, TOOLBAR_COLOR, toolsBar, width=0)
 
         DRAW_OBSTACLE_BUTTON.draw(screen)
