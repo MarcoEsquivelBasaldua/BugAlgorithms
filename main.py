@@ -8,15 +8,15 @@ if __name__ == "__main__":
     pygame.init()
 
     # Environment sizes
+    ENV_HEIGHT    = 800
     ENV_WIDTH     = 1200
-    ENV_LENGTH    = 800
     TOOLBAR_WIDTH = 200
 
     # Colors
     SCREEN_COLOR         = (255, 255, 255)  # White
     TOOLBAR_COLOR        = (160, 160, 160)  # Gray
-    BUTTON_COLOR         = (192, 192, 192)
-    BUTTON_PRESSED_COLOR = (128, 128, 128)
+    BUTTON_COLOR         = (192, 192, 192)  # Light gray
+    BUTTON_PRESSED_COLOR = (128, 128, 128)  # Dark gray
     ROBOT_COLOR          = (0, 0, 255)      # Blue
     GOAL_COLOR           = (255, 0, 0)      # Red
     OBSTACLE_COLOR       = (0, 0, 0)        # Black
@@ -24,12 +24,26 @@ if __name__ == "__main__":
     MESSAGE_COLOR        = (0, 0, 0)        # Black
     WARNING_COLOR        = (255, 0, 0)      # Red
 
-    screen = pygame.display.set_mode((ENV_WIDTH, ENV_LENGTH))
+    screen = pygame.display.set_mode((ENV_WIDTH, ENV_HEIGHT))
     pygame.display.set_caption("Bug Algorithms")
 
     # Buttons
-    
-    DRAW_OBSTACLE_BUTTON = screenTools.Button(10, 10, 100, 200, 'Draw obstacle', BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    BUTTON_HEIGHT_BIG    = 80
+    BUTTON_WIDTH_BIG     = 140
+    BUTTON_HEIGHT_MEDIUM = 100
+    BUTTON_WIDTH_MEDIUM  = 140
+    BUTTON_HEIGHT_SMALL  = 60
+    BUTTON_WIDTH_SMALL   = 76
+
+    DRAW_OBSTACLE_BUTTON = screenTools.Button(30 , 40 , BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Draw Obstacle', BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    PLACE_GOAL_BUTTON    = screenTools.Button(30 , 160, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Place Goal'   , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    PLACE_ROBOT_BUTTON   = screenTools.Button(30 , 280, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Place Robot'  , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    BUG1_BUTTON          = screenTools.Button(16 , 400, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'BUG 1'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    BUG2_BUTTON          = screenTools.Button(108, 400, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'BUG 2'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    TANGENT_BUG_BUTTON   = screenTools.Button(62 , 480, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'T BUG'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    RESET_PLACES_BUTTON  = screenTools.Button(16 , 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'RESET'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
     
 
     running = True
@@ -39,12 +53,29 @@ if __name__ == "__main__":
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 DRAW_OBSTACLE_BUTTON.handle_event(event)
+                PLACE_GOAL_BUTTON.handle_event(event)
+                PLACE_ROBOT_BUTTON.handle_event(event)
+                BUG1_BUTTON.handle_event(event)
+                BUG2_BUTTON.handle_event(event)
+                TANGENT_BUG_BUTTON.handle_event(event)
+                GO_BUTTON.handle_event(event)
+                RESET_PLACES_BUTTON.handle_event(event)
+                RESET_ALL_BUTTON.handle_event(event)
 
         screen.fill(SCREEN_COLOR)  # Fill the screen with white
-        toolsBar = pygame.Rect(0, 0, TOOLBAR_WIDTH, ENV_LENGTH)
+        toolsBar = pygame.Rect(0, 0, TOOLBAR_WIDTH, ENV_HEIGHT)
         pygame.draw.rect(screen, TOOLBAR_COLOR, toolsBar, width=0)
 
+        # Place buttons in tools bar
         DRAW_OBSTACLE_BUTTON.draw(screen)
+        PLACE_GOAL_BUTTON.draw(screen)
+        PLACE_ROBOT_BUTTON.draw(screen)
+        BUG1_BUTTON.draw(screen)
+        BUG2_BUTTON.draw(screen)
+        TANGENT_BUG_BUTTON.draw(screen)
+        GO_BUTTON.draw(screen)
+        RESET_PLACES_BUTTON.draw(screen)
+        RESET_ALL_BUTTON.draw(screen)
 
         pygame.display.flip()    # Update the display
 
