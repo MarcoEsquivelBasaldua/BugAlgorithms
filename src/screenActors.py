@@ -8,6 +8,9 @@ class Obstacle:
     def addVertice(self, vertice):
         self.vertices.append(vertice)
 
+    def reset(self):
+        self.vertices = []
+
 
 #class Robot:
 

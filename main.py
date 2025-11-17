@@ -1,9 +1,20 @@
+import numpy as np
+import copy
 import pygame
 import sys
 sys.path.insert(1, './src')
 import screenTools
 import screenActors
 
+
+def distance(x1, x2):
+    delta1 = x1[0] - x2[0]
+    delta2 = x1[1] - x2[1]
+    delta1 = delta1 ** 2
+    delta2 = delta2 ** 2
+    sum_ = delta1 + delta2
+
+    return np.sqrt(sum_)
 
 def drawObstacle(obstacle, screen, color, width, closePolygon = True):
     nOfVertices = len(obstacle.vertices)
@@ -60,10 +71,7 @@ if __name__ == "__main__":
     OBSTACLE_WIDTH = 20
     newObs = screenActors.Obstacle()
     wasMousePresed = False
-    ver = [(300, 20), (500, 100), (400, 400)]
-    obs = screenActors.Obstacle()
-    obs.vertices = ver
-    obstacles = [obs]
+    obstacles = []
     
 
     running = True
@@ -105,16 +113,33 @@ if __name__ == "__main__":
 
 
         # Draw new obstacle
-        if DRAW_OBSTACLE_BUTTON.wasPressed:
-            drawingNewObs = True
+        if DRAW_OBSTACLE_BUTTON.wasPressed and pygame.mouse.get_pos()[0] > TOOLBAR_WIDTH:
+            closePolygonDistance = 10.0
 
             currentMousePos = pygame.mouse.get_pos()
-            pygame.draw.circle(screen, OBSTACLE_COLOR, currentMousePos, OBSTACLE_WIDTH // 2)
+            newVertice = currentMousePos
+
+            if len(newObs.vertices) > 0:
+                dist2FirstVertice = distance(currentMousePos, newObs.vertices[0])
+
+                if dist2FirstVertice < closePolygonDistance:
+                    newVertice = newObs.vertices[0]
+                else:
+                    newVertice = currentMousePos
+
+                pygame.draw.line(screen, OBSTACLE_COLOR, newObs.vertices[-1], newVertice, OBSTACLE_WIDTH)
+            pygame.draw.circle(screen, OBSTACLE_COLOR, newVertice, OBSTACLE_WIDTH // 2)
 
             if wasMousePresed:
-                newObs.addVertice(currentMousePos)
+                newObs.addVertice(newVertice)
+                
+                if newVertice == newObs.vertices[0] and len(newObs.vertices) > 1:
+                    obstacles.append(copy.deepcopy(newObs))
+                    newObs.reset()
+                    DRAW_OBSTACLE_BUTTON.reset()
 
-            drawObstacle(newObs, screen, OBSTACLE_COLOR, OBSTACLE_WIDTH, closePolygon=False)
+            if len(newObs.vertices) > 1:
+                drawObstacle(newObs, screen, OBSTACLE_COLOR, OBSTACLE_WIDTH, closePolygon=False)
 
 
         wasMousePresed = False
