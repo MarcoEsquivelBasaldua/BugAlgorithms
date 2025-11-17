@@ -5,6 +5,18 @@ import screenTools
 import screenActors
 
 
+def drawObstacle(obstacle, screen, color, width, closePolygon = True):
+    nOfVertices = len(obstacle.vertices)
+    initPos = obstacle.vertices[0]
+
+    for i in range(nOfVertices):
+        pygame.draw.circle(screen, color, obstacle.vertices[i], width // 2)
+        if i < (nOfVertices - 1):
+            pygame.draw.line(screen, color, obstacle.vertices[i], obstacle.vertices[i+1], width)
+        elif closePolygon:
+            pygame.draw.line(screen, color, obstacle.vertices[i], initPos, width)
+
+
 if __name__ == "__main__":
     pygame.init()
 
@@ -89,15 +101,7 @@ if __name__ == "__main__":
 
         # Draw obstacles
         for obstacle in obstacles:
-            nOfVertices = len(obstacle.vertices)
-            initPos = obstacle.vertices[0]
-
-            for i in range(nOfVertices):
-                pygame.draw.circle(screen, OBSTACLE_COLOR, obstacle.vertices[i], OBSTACLE_WIDTH // 2)
-                if i < (nOfVertices - 1):
-                    pygame.draw.line(screen, OBSTACLE_COLOR, obstacle.vertices[i], obstacle.vertices[i+1], OBSTACLE_WIDTH)
-                else:
-                    pygame.draw.line(screen, OBSTACLE_COLOR, obstacle.vertices[i], initPos, OBSTACLE_WIDTH)
+            drawObstacle(obstacle, screen, OBSTACLE_COLOR, OBSTACLE_WIDTH)
 
 
         # Draw new obstacle
@@ -110,13 +114,7 @@ if __name__ == "__main__":
             if wasMousePresed:
                 newObs.addVertice(currentMousePos)
 
-            nOfVertices = len(newObs.vertices)
-            initPos = obstacle.vertices[0]
-
-            for i in range(nOfVertices):
-                pygame.draw.circle(screen, OBSTACLE_COLOR, newObs.vertices[i], OBSTACLE_WIDTH // 2)
-                if i < (nOfVertices - 1):
-                    pygame.draw.line(screen, OBSTACLE_COLOR, newObs.vertices[i], newObs.vertices[i+1], OBSTACLE_WIDTH)
+            drawObstacle(newObs, screen, OBSTACLE_COLOR, OBSTACLE_WIDTH, closePolygon=False)
 
 
         wasMousePresed = False
