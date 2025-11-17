@@ -32,8 +32,8 @@ if __name__ == "__main__":
     pygame.init()
 
     # Environment sizes
-    ENV_HEIGHT    = 800
-    ENV_WIDTH     = 1200
+    ENV_HEIGHT    = 900
+    ENV_WIDTH     = 1400
     TOOLBAR_WIDTH = 200
 
     # Colors
