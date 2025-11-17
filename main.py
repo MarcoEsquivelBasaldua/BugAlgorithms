@@ -2,6 +2,7 @@ import pygame
 import sys
 sys.path.insert(1, './src')
 import screenTools
+import screenActors
 
 
 if __name__ == "__main__":
@@ -30,8 +31,6 @@ if __name__ == "__main__":
     # Buttons
     BUTTON_HEIGHT_BIG    = 80
     BUTTON_WIDTH_BIG     = 140
-    BUTTON_HEIGHT_MEDIUM = 100
-    BUTTON_WIDTH_MEDIUM  = 140
     BUTTON_HEIGHT_SMALL  = 60
     BUTTON_WIDTH_SMALL   = 76
 
@@ -44,6 +43,15 @@ if __name__ == "__main__":
     RESET_PLACES_BUTTON  = screenTools.Button(16 , 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'RESET'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
     RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
     GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+
+    # Obstacles list
+    OBSTACLE_WIDTH = 20
+    newObs = screenActors.Obstacle()
+    wasMousePresed = False
+    ver = [(300, 20), (500, 100), (400, 400)]
+    obs = screenActors.Obstacle()
+    obs.vertices = ver
+    obstacles = [obs]
     
 
     running = True
@@ -52,6 +60,8 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                wasMousePresed = True
+
                 DRAW_OBSTACLE_BUTTON.handle_event(event)
                 PLACE_GOAL_BUTTON.handle_event(event)
                 PLACE_ROBOT_BUTTON.handle_event(event)
@@ -77,6 +87,40 @@ if __name__ == "__main__":
         RESET_PLACES_BUTTON.draw(screen)
         RESET_ALL_BUTTON.draw(screen)
 
+        # Draw obstacles
+        for obstacle in obstacles:
+            nOfVertices = len(obstacle.vertices)
+            initPos = obstacle.vertices[0]
+
+            for i in range(nOfVertices):
+                pygame.draw.circle(screen, OBSTACLE_COLOR, obstacle.vertices[i], OBSTACLE_WIDTH // 2)
+                if i < (nOfVertices - 1):
+                    pygame.draw.line(screen, OBSTACLE_COLOR, obstacle.vertices[i], obstacle.vertices[i+1], OBSTACLE_WIDTH)
+                else:
+                    pygame.draw.line(screen, OBSTACLE_COLOR, obstacle.vertices[i], initPos, OBSTACLE_WIDTH)
+
+
+        # Draw new obstacle
+        if DRAW_OBSTACLE_BUTTON.wasPressed:
+            drawingNewObs = True
+
+            currentMousePos = pygame.mouse.get_pos()
+            pygame.draw.circle(screen, OBSTACLE_COLOR, currentMousePos, OBSTACLE_WIDTH // 2)
+
+            if wasMousePresed:
+                newObs.addVertice(currentMousePos)
+
+            nOfVertices = len(newObs.vertices)
+            initPos = obstacle.vertices[0]
+
+            for i in range(nOfVertices):
+                pygame.draw.circle(screen, OBSTACLE_COLOR, newObs.vertices[i], OBSTACLE_WIDTH // 2)
+                if i < (nOfVertices - 1):
+                    pygame.draw.line(screen, OBSTACLE_COLOR, newObs.vertices[i], newObs.vertices[i+1], OBSTACLE_WIDTH)
+
+
+        wasMousePresed = False
         pygame.display.flip()    # Update the display
+
 
     pygame.quit()

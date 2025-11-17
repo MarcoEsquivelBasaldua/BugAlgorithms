@@ -1,7 +1,16 @@
 import pygame
 
-class Robot:
-
 class Obstacle:
+    def __init__(self):
+        self.vertices = []
+        self.isNearInit = False
 
-class goal:
+    def addVertice(self, vertice):
+        self.vertices.append(vertice)
+
+
+#class Robot:
+
+
+
+#class Goal:
