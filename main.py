@@ -16,7 +16,7 @@ def distance(x1, x2):
 
     return np.sqrt(sum_)
 
-def drawObstacle(obstacle, screen, color, width, closePolygon = True):
+def drawObstacle(screen, obstacle, color, width, closePolygon = True):
     nOfVertices = len(obstacle.vertices)
     initPos = obstacle.vertices[0]
 
@@ -26,6 +26,35 @@ def drawObstacle(obstacle, screen, color, width, closePolygon = True):
             pygame.draw.line(screen, color, obstacle.vertices[i], obstacle.vertices[i+1], width)
         elif closePolygon:
             pygame.draw.line(screen, color, obstacle.vertices[i], initPos, width)
+
+def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth, toolbarWidth):
+    if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
+        closePolygonDistance = 10.0
+
+        currentMousePos = pygame.mouse.get_pos()
+        newVertice = currentMousePos
+
+        if len(newObstacle.vertices) > 0:
+            dist2FirstVertice = distance(currentMousePos, newObstacle.vertices[0])
+
+            if dist2FirstVertice < closePolygonDistance:
+                newVertice = newObstacle.vertices[0]
+            else:
+                newVertice = currentMousePos
+
+            pygame.draw.line(screen, color, newObstacle.vertices[-1], newVertice, lineWidth)
+        pygame.draw.circle(screen, color, newVertice, lineWidth // 2)
+
+        if wasMousePresed:
+            newObstacle.addVertice(newVertice)
+            
+            if newVertice == newObstacle.vertices[0] and len(newObstacle.vertices) > 1:
+                obstacleList.append(copy.deepcopy(newObstacle))
+                newObstacle.reset()
+                button.reset()
+
+        if len(newObstacle.vertices) > 1:
+            drawObstacle(screen, newObstacle, color, lineWidth, closePolygon=False)
 
 
 if __name__ == "__main__":
@@ -109,37 +138,10 @@ if __name__ == "__main__":
 
         # Draw obstacles
         for obstacle in obstacles:
-            drawObstacle(obstacle, screen, OBSTACLE_COLOR, OBSTACLE_WIDTH)
-
+            drawObstacle(screen, obstacle, OBSTACLE_COLOR, OBSTACLE_WIDTH)
 
         # Draw new obstacle
-        if DRAW_OBSTACLE_BUTTON.wasPressed and pygame.mouse.get_pos()[0] > TOOLBAR_WIDTH:
-            closePolygonDistance = 10.0
-
-            currentMousePos = pygame.mouse.get_pos()
-            newVertice = currentMousePos
-
-            if len(newObs.vertices) > 0:
-                dist2FirstVertice = distance(currentMousePos, newObs.vertices[0])
-
-                if dist2FirstVertice < closePolygonDistance:
-                    newVertice = newObs.vertices[0]
-                else:
-                    newVertice = currentMousePos
-
-                pygame.draw.line(screen, OBSTACLE_COLOR, newObs.vertices[-1], newVertice, OBSTACLE_WIDTH)
-            pygame.draw.circle(screen, OBSTACLE_COLOR, newVertice, OBSTACLE_WIDTH // 2)
-
-            if wasMousePresed:
-                newObs.addVertice(newVertice)
-                
-                if newVertice == newObs.vertices[0] and len(newObs.vertices) > 1:
-                    obstacles.append(copy.deepcopy(newObs))
-                    newObs.reset()
-                    DRAW_OBSTACLE_BUTTON.reset()
-
-            if len(newObs.vertices) > 1:
-                drawObstacle(newObs, screen, OBSTACLE_COLOR, OBSTACLE_WIDTH, closePolygon=False)
+        drawNewObstacle(screen, obstacles, newObs, DRAW_OBSTACLE_BUTTON, OBSTACLE_COLOR, OBSTACLE_WIDTH, TOOLBAR_WIDTH)
 
 
         wasMousePresed = False
