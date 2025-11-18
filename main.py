@@ -58,6 +58,18 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
         if len(newObstacle.vertices) > 1:
             drawObstacle(screen, newObstacle, color, lineWidth, closePolygon=False)
 
+def placeRobot(screen, robot, button, color, radius, toolbarWidth):
+    if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
+        currentPos = pygame.mouse.get_pos()
+        pygame.draw.circle(screen, color, currentPos, radius)
+
+        if wasMousePresed:
+            robot.pos   = currentPos
+            robot.exist = True
+            button.reset()
+
+    robot.draw(screen)
+
 
 if __name__ == "__main__":
     pygame.init()
@@ -149,16 +161,7 @@ if __name__ == "__main__":
         drawNewObstacle(screen, obstacles, newObs, DRAW_OBSTACLE_BUTTON, OBSTACLE_COLOR, OBSTACLE_WIDTH, TOOLBAR_WIDTH)
 
         # Place Robot
-        if PLACE_ROBOT_BUTTON.wasPressed and pygame.mouse.get_pos()[0] > TOOLBAR_WIDTH:
-            currentPos = pygame.mouse.get_pos()
-            pygame.draw.circle(screen, ROBOT_COLOR, currentPos, 10)
-
-            if wasMousePresed:
-                robot.pos   = currentPos
-                robot.exist = True
-                PLACE_ROBOT_BUTTON.reset()
-
-        robot.draw(screen)
+        placeRobot(screen, robot, PLACE_ROBOT_BUTTON, ROBOT_COLOR, 10, TOOLBAR_WIDTH)
 
 
 
