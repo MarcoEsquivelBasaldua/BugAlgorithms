@@ -103,6 +103,9 @@ if __name__ == "__main__":
     newObs = screenActors.Obstacle()
     wasMousePresed = False
     obstacles = []
+
+    # Point Robot
+    robot = screenActors.Robot((0,0), ROBOT_COLOR)
     
 
     running = True
@@ -144,6 +147,19 @@ if __name__ == "__main__":
 
         # Draw new obstacle
         drawNewObstacle(screen, obstacles, newObs, DRAW_OBSTACLE_BUTTON, OBSTACLE_COLOR, OBSTACLE_WIDTH, TOOLBAR_WIDTH)
+
+        # Place Robot
+        if PLACE_ROBOT_BUTTON.wasPressed and pygame.mouse.get_pos()[0] > TOOLBAR_WIDTH:
+            currentPos = pygame.mouse.get_pos()
+            pygame.draw.circle(screen, ROBOT_COLOR, currentPos, 10)
+
+            if wasMousePresed:
+                robot.pos   = currentPos
+                robot.exist = True
+                PLACE_ROBOT_BUTTON.reset()
+
+        robot.draw(screen)
+
 
 
         wasMousePresed = False

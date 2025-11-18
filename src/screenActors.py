@@ -3,7 +3,6 @@ import pygame
 class Obstacle:
     def __init__(self):
         self.vertices   = []
-        self.isNearInit = False
 
     def addVertice(self, vertice):
         self.vertices.append(vertice)
@@ -15,8 +14,9 @@ class Obstacle:
 class Robot:
     def __init__(self, pos, color, rangeSensor = 0):
         self.pos           = pos
+        self.exist         = False
         self.__posHistory  = []
-        self.__radius      = 5
+        self.__radius      = 10
         self.__color       = color
         self.__rangeSensor = rangeSensor
 
@@ -34,10 +34,13 @@ class Robot:
     def followObstacleBoundary(self):
         pass
 
-    def draw(self, screen, pos):
-        self.pos = pos
-        self.__posHistory.append(self.pos)
-        pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+    def draw(self, screen, pos = None):
+        if self.exist:
+            if pos == None:
+                pos = self.pos
+
+            #self.__posHistory.append(self.pos)
+            pygame.draw.circle(screen, self.__color, pos, self.__radius)
 
     def drawHistory(self, screen):
         nOfSteps = len(self.__posHistory)
@@ -48,6 +51,9 @@ class Robot:
             newColor   = (255, alphaColor, alphaColor)
 
             pygame.draw.circle(screen, newColor, pos, self.__radius // 2)
+
+    def reset(self):
+        pass
 
 
 
