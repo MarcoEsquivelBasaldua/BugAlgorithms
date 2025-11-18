@@ -16,7 +16,7 @@ def distance(x1, x2):
 
     return np.sqrt(sum_)
 
-def drawObstacle(screen, obstacle, color, width, closePolygon = True):
+def drawObstacle(screen, obstacle, color, width):
     nOfVertices = len(obstacle.vertices)
     initPos = obstacle.vertices[0]
     lastVertice = initPos
@@ -56,7 +56,7 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
                 button.reset()
 
         if len(newObstacle.vertices) > 1:
-            drawObstacle(screen, newObstacle, color, lineWidth, closePolygon=False)
+            drawObstacle(screen, newObstacle, color, lineWidth)
 
 def placeRobot(screen, robot, button, color, radius, toolbarWidth):
     if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
