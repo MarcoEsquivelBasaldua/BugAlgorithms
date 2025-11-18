@@ -19,13 +19,15 @@ def distance(x1, x2):
 def drawObstacle(screen, obstacle, color, width, closePolygon = True):
     nOfVertices = len(obstacle.vertices)
     initPos = obstacle.vertices[0]
+    lastVertice = initPos
 
     for i in range(nOfVertices):
         pygame.draw.circle(screen, color, obstacle.vertices[i], width // 2)
         if i < (nOfVertices - 1):
-            pygame.draw.line(screen, color, obstacle.vertices[i], obstacle.vertices[i+1], width)
-        elif closePolygon:
-            pygame.draw.line(screen, color, obstacle.vertices[i], initPos, width)
+            lastVertice = obstacle.vertices[i+1]
+            
+        pygame.draw.line(screen, color, obstacle.vertices[i], lastVertice, width)
+
 
 def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth, toolbarWidth):
     if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
