@@ -50,7 +50,7 @@ if __name__ == "__main__":
     obstacles = []
 
     # Point Robot
-    robot = screenActors.Robot((0,0), ROBOT_COLOR)
+    robot = screenActors.Robot(ROBOT_COLOR)
     
     running = True
     while running:
