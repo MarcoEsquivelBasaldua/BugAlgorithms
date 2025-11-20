@@ -103,7 +103,19 @@ if __name__ == "__main__":
         # Place Robot
         robot.placeRobot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
 
+        # Reset Options
+        if RESET_PLACES_BUTTON.wasPressed or RESET_ALL_BUTTON.wasPressed:
+            robot.reset()
+            goal.reset()
+            RESET_PLACES_BUTTON.reset()
 
+            if RESET_ALL_BUTTON.wasPressed:
+                obstacles = []
+                BUG1_BUTTON.reset()
+                BUG2_BUTTON.reset()
+                TANGENT_BUG_BUTTON.reset()
+                RESET_ALL_BUTTON.reset()
+        
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display

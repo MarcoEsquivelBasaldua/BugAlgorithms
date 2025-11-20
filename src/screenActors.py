@@ -63,7 +63,9 @@ class Robot:
             pygame.draw.circle(screen, newColor, pos, self.__radius // 2)
 
     def reset(self):
-        pass
+        self.pos           = None
+        self.exist         = False
+        self.__posHistory  = []
 
 
 class Goal:
@@ -84,6 +86,10 @@ class Goal:
                 button.reset()
 
         self.__draw(screen)
+
+    def reset(self):
+        self.pos   = None
+        self.exist = False
 
     def __draw(self, screen):
         if self.exist:
