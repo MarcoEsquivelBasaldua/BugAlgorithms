@@ -1,75 +1,8 @@
-import numpy as np
-import copy
 import pygame
 import sys
 sys.path.insert(1, './src')
 import screenTools
 import screenActors
-
-
-def distance(x1, x2):
-    delta1 = x1[0] - x2[0]
-    delta2 = x1[1] - x2[1]
-    delta1 = delta1 ** 2
-    delta2 = delta2 ** 2
-    sum_ = delta1 + delta2
-
-    return np.sqrt(sum_)
-
-def drawObstacle(screen, obstacle, color, width):
-    nOfVertices = len(obstacle.vertices)
-    initPos = obstacle.vertices[0]
-    lastVertice = initPos
-
-    for i in range(nOfVertices):
-        pygame.draw.circle(screen, color, obstacle.vertices[i], width // 2)
-        if i < (nOfVertices - 1):
-            lastVertice = obstacle.vertices[i+1]
-            
-        pygame.draw.line(screen, color, obstacle.vertices[i], lastVertice, width)
-
-
-def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth, toolbarWidth):
-    if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
-        closePolygonDistance = 10.0
-
-        currentMousePos = pygame.mouse.get_pos()
-        newVertice = currentMousePos
-
-        if len(newObstacle.vertices) > 0:
-            dist2FirstVertice = distance(currentMousePos, newObstacle.vertices[0])
-
-            if dist2FirstVertice < closePolygonDistance:
-                newVertice = newObstacle.vertices[0]
-            else:
-                newVertice = currentMousePos
-
-            pygame.draw.line(screen, color, newObstacle.vertices[-1], newVertice, lineWidth)
-        pygame.draw.circle(screen, color, newVertice, lineWidth // 2)
-
-        if wasMousePresed:
-            newObstacle.addVertice(newVertice)
-            
-            if newVertice == newObstacle.vertices[0] and len(newObstacle.vertices) > 1:
-                obstacleList.append(copy.deepcopy(newObstacle))
-                newObstacle.reset()
-                button.reset()
-
-        if len(newObstacle.vertices) > 1:
-            drawObstacle(screen, newObstacle, color, lineWidth)
-
-def placeRobot(screen, robot, button, color, radius, toolbarWidth):
-    if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
-        currentPos = pygame.mouse.get_pos()
-        pygame.draw.circle(screen, color, currentPos, radius)
-
-        if wasMousePresed:
-            robot.pos   = currentPos
-            robot.exist = True
-            button.reset()
-
-    robot.draw(screen)
-
 
 if __name__ == "__main__":
     pygame.init()
@@ -119,7 +52,6 @@ if __name__ == "__main__":
     # Point Robot
     robot = screenActors.Robot((0,0), ROBOT_COLOR)
     
-
     running = True
     while running:
         for event in pygame.event.get():
@@ -155,13 +87,15 @@ if __name__ == "__main__":
 
         # Draw obstacles
         for obstacle in obstacles:
-            drawObstacle(screen, obstacle, OBSTACLE_COLOR, OBSTACLE_WIDTH)
+            screenActors.drawObstacle(screen, obstacle, OBSTACLE_COLOR, OBSTACLE_WIDTH)
 
         # Draw new obstacle
-        drawNewObstacle(screen, obstacles, newObs, DRAW_OBSTACLE_BUTTON, OBSTACLE_COLOR, OBSTACLE_WIDTH, TOOLBAR_WIDTH)
+        screenActors.drawNewObstacle(screen, obstacles, newObs,
+                                     DRAW_OBSTACLE_BUTTON, OBSTACLE_COLOR,
+                                     OBSTACLE_WIDTH, TOOLBAR_WIDTH, wasMousePresed)
 
         # Place Robot
-        placeRobot(screen, robot, PLACE_ROBOT_BUTTON, ROBOT_COLOR, 10, TOOLBAR_WIDTH)
+        robot.placeRobot(screen, robot, PLACE_ROBOT_BUTTON, ROBOT_COLOR, TOOLBAR_WIDTH, wasMousePresed)
 
 
 
