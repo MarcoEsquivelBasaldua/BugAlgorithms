@@ -24,21 +24,11 @@ class Robot:
 
         self.__posHistory.append(self.pos)
 
-    def __add2History(self):
-        pass
-
-    def __obstacleEncountered(self):
-        pass
-
     def moveTowardGoal(self):
         pass
 
     def followObstacleBoundary(self):
         pass
-
-    def __draw(self, screen):
-        if self.exist:
-            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
     def placeRobot(self, screen, button, toolbarWidth, wasMousePresed):
         if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
@@ -66,6 +56,16 @@ class Robot:
         self.pos           = None
         self.exist         = False
         self.__posHistory  = []
+
+    def __draw(self, screen):
+        if self.exist:
+            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+
+    def __add2History(self):
+        pass
+
+    def __obstacleEncountered(self):
+        pass
 
 
 class Goal:
