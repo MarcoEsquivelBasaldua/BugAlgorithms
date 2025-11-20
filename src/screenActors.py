@@ -40,17 +40,17 @@ class Robot:
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
-    def placeRobot(self, screen, robot, button, color, toolbarWidth, wasMousePresed):
+    def placeRobot(self, screen, button, color, toolbarWidth, wasMousePresed):
         if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
             currentPos = pygame.mouse.get_pos()
             pygame.draw.circle(screen, color, currentPos, self.__radius)
 
             if wasMousePresed:
-                robot.pos   = currentPos
-                robot.exist = True
+                self.pos   = currentPos
+                self.exist = True
                 button.reset()
 
-        robot.__draw(screen)
+        self.__draw(screen)
 
     def drawHistory(self, screen):
         nOfSteps = len(self.__posHistory)
@@ -68,8 +68,10 @@ class Robot:
 
 
 class Goal:
-    def __init__(self):
-        pass
+    def __init__(self, color):
+        self.pos = None
+
+    #def placeGoal()
 
 # Functions
 

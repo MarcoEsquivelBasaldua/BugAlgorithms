@@ -51,6 +51,9 @@ if __name__ == "__main__":
 
     # Point Robot
     robot = screenActors.Robot(ROBOT_COLOR)
+
+    # Goal
+    goal = screenActors.Goal(GOAL_COLOR)
     
     running = True
     while running:
@@ -95,7 +98,7 @@ if __name__ == "__main__":
                                      OBSTACLE_WIDTH, TOOLBAR_WIDTH, wasMousePresed)
 
         # Place Robot
-        robot.placeRobot(screen, robot, PLACE_ROBOT_BUTTON, ROBOT_COLOR, TOOLBAR_WIDTH, wasMousePresed)
+        robot.placeRobot(screen, PLACE_ROBOT_BUTTON, ROBOT_COLOR, TOOLBAR_WIDTH, wasMousePresed)
 
 
 
