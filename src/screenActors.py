@@ -40,10 +40,10 @@ class Robot:
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
-    def placeRobot(self, screen, button, color, toolbarWidth, wasMousePresed):
+    def placeRobot(self, screen, button, toolbarWidth, wasMousePresed):
         if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
             currentPos = pygame.mouse.get_pos()
-            pygame.draw.circle(screen, color, currentPos, self.__radius)
+            pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
 
             if wasMousePresed:
                 self.pos   = currentPos
@@ -66,12 +66,28 @@ class Robot:
         pass
 
 
-
 class Goal:
     def __init__(self, color):
-        self.pos = None
+        self.pos      = None
+        self.exist    = False
+        self.__color  = color
+        self.__radius = 20
 
-    #def placeGoal()
+    def placeGoal(self, screen, button, toolbarWidth, wasMousePresed):
+        if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
+            currentPos = pygame.mouse.get_pos()
+            pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
+
+            if wasMousePresed:
+                self.pos   = currentPos
+                self.exist = True
+                button.reset()
+
+        self.__draw(screen)
+
+    def __draw(self, screen):
+        if self.exist:
+            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
 # Functions
 

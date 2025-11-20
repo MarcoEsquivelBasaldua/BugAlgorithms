@@ -97,8 +97,11 @@ if __name__ == "__main__":
                                      DRAW_OBSTACLE_BUTTON, OBSTACLE_COLOR,
                                      OBSTACLE_WIDTH, TOOLBAR_WIDTH, wasMousePresed)
 
+        # Place Goal
+        goal.placeGoal(screen, PLACE_GOAL_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+
         # Place Robot
-        robot.placeRobot(screen, PLACE_ROBOT_BUTTON, ROBOT_COLOR, TOOLBAR_WIDTH, wasMousePresed)
+        robot.placeRobot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
 
 
 
