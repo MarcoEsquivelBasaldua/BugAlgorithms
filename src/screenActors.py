@@ -90,7 +90,7 @@ class Robot:
             pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
 
             if wasMousePresed:
-                self.pos   = currentPos
+                self.pos   = np.array(currentPos)
                 self.exist = True
                 button.reset()
 
@@ -167,7 +167,7 @@ class Goal:
             pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
 
             if wasMousePresed:
-                self.pos   = currentPos
+                self.pos   = np.array(currentPos)
                 self.exist = True
                 button.reset()
 
