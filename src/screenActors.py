@@ -55,6 +55,14 @@ class Robot:
         self.__rangeSensor = rangeSensor
 
     def moveTowardGoal(self, screen, goalPos):
+        """
+        Moves the robot toward the specified goal position in a straight line.
+        Arguments:
+            screen: The pygame surface where the robot will be drawn.
+            goalPos: A tuple representing the (x, y) coordinates of the goal position.
+        Returns:
+            None
+        """
         self.__moving = True
         dist2Goal     = distance(self.pos, goalPos)
 
