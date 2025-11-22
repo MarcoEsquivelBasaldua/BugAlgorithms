@@ -107,6 +107,7 @@ if __name__ == "__main__":
         if RESET_PLACES_BUTTON.wasPressed or RESET_ALL_BUTTON.wasPressed:
             robot.reset()
             goal.reset()
+            GO_BUTTON.reset()
             RESET_PLACES_BUTTON.reset()
 
             if RESET_ALL_BUTTON.wasPressed:
