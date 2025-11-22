@@ -118,11 +118,11 @@ if __name__ == "__main__":
 
         # Move to goal
         if GO_BUTTON.wasPressed == True and robot.goalReached == False:
-            robot.moveTowardGoal(goal.pos)
+            robot.moveTowardGoal(screen, goal.pos)
 
             robot.drawHistory(screen)
 
-            pygame.time.delay(1000)
+            pygame.time.delay(100)
         
 
         wasMousePresed = False

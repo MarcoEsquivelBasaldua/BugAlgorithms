@@ -48,13 +48,15 @@ class Robot:
         self.goalReached   = False
         self.__step        = 10
         self.__nearGoalTh  = 10
+        self.__moving      = False
         self.__posHistory  = []
         self.__radius      = 10
         self.__color       = color
         self.__rangeSensor = rangeSensor
 
-    def moveTowardGoal(self, goalPos):
-        dist2Goal = distance(self.pos, goalPos)
+    def moveTowardGoal(self, screen, goalPos):
+        self.__moving = True
+        dist2Goal     = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
             dist2GoalXY  = goalPos - self.pos
@@ -64,9 +66,11 @@ class Robot:
 
             self.pos += steps
 
-            self.__posHistory.append(self.pos)
+            self.__posHistory.append(np.array(self.pos, dtype=np.int64))
+            self.__draw(screen)
         else:
             self.goalReached = True
+            self.__moving    = False
 
     def followObstacleBoundary(self):
         pass
@@ -90,8 +94,8 @@ class Robot:
                 self.pos   = np.array(currentPos, dtype=np.int64)
                 self.exist = True
                 button.reset()
-
-        self.__draw(screen)
+        if not self.__moving:
+            self.__draw(screen)
 
     def drawHistory(self, screen):
         """
@@ -103,8 +107,7 @@ class Robot:
         """
         nOfSteps = len(self.__posHistory)
 
-        for i, pos in enumerate(self.__posHistory, start=1):
-            print(pos)
+        for i, pos in enumerate(self.__posHistory):
             alphaColor = (i / nOfSteps) * 255
             alphaColor = 255 - int(alphaColor)
             newColor   = (alphaColor, alphaColor, 255)
