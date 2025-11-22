@@ -45,6 +45,9 @@ class Robot:
             None"""
         self.pos           = None
         self.exist         = False
+        self.goalReached   = False
+        self.__step        = 2
+        self.__nearGoalTh  = 10
         self.__posHistory  = []
         self.__radius      = 10
         self.__color       = color
@@ -52,8 +55,21 @@ class Robot:
 
         self.__posHistory.append(self.pos)
 
-    def moveTowardGoal(self):
-        pass
+    def moveTowardGoal(self, goalPos):
+        dist2Goal = distance(self.pos, goalPos)
+
+        if dist2Goal > self.__nearGoalTh:
+            dist2GoalX = goalPos[0] - self.pos[0]
+            dist2GoalY = goalPos[1] - self.pos[1]
+            steps2goal = dist2Goal // self.__step
+
+            stepX = dist2GoalX // steps2goal
+            stepY = dist2GoalY // steps2goal
+
+            self.pos[0] += stepX
+            self.pos[1] += stepY
+        else:
+            self.goalReached = True
 
     def followObstacleBoundary(self):
         pass
@@ -107,6 +123,7 @@ class Robot:
         """
         self.pos           = None
         self.exist         = False
+        self.goalReached   = False
         self.__posHistory  = []
 
     def __draw(self, screen):
