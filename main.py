@@ -115,10 +115,19 @@ if __name__ == "__main__":
                 BUG2_BUTTON.reset()
                 TANGENT_BUG_BUTTON.reset()
                 RESET_ALL_BUTTON.reset()
+
+        # Move to goal
+        if GO_BUTTON.wasPressed == True and robot.goalReached == False:
+            robot.moveTowardGoal(goal.pos)
+
+            robot.drawHistory(screen)
+
+            pygame.time.delay(1000)
         
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display
+        
 
 
     pygame.quit()
