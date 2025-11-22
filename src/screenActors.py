@@ -122,10 +122,11 @@ class Robot:
         Returns:
             None
         """
-        self.pos           = None
-        self.exist         = False
-        self.goalReached   = False
-        self.__posHistory  = []
+        self.pos          = None
+        self.exist        = False
+        self.goalReached  = False
+        self.__moving     = False 
+        self.__posHistory = []
 
     def __draw(self, screen):
         if self.exist:

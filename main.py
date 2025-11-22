@@ -124,6 +124,8 @@ if __name__ == "__main__":
 
             pygame.time.delay(100)
         
+        if robot.goalReached:
+            robot.drawHistory(screen)
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display
