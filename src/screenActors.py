@@ -45,15 +45,40 @@ class Robot:
             None"""
         self.pos           = None
         self.exist         = False
+        self.goalReached   = False
+        self.__step        = 10
+        self.__nearGoalTh  = 10
+        self.__moving      = False
         self.__posHistory  = []
         self.__radius      = 10
         self.__color       = color
         self.__rangeSensor = rangeSensor
 
-        self.__posHistory.append(self.pos)
+    def moveTowardGoal(self, screen, goalPos):
+        """
+        Moves the robot toward the specified goal position in a straight line.
+        Arguments:
+            screen: The pygame surface where the robot will be drawn.
+            goalPos: A tuple representing the (x, y) coordinates of the goal position.
+        Returns:
+            None
+        """
+        self.__moving = True
+        dist2Goal     = distance(self.pos, goalPos)
 
-    def moveTowardGoal(self):
-        pass
+        if dist2Goal > self.__nearGoalTh:
+            dist2GoalXY  = goalPos - self.pos
+            steps2goal = int(dist2Goal / self.__step)
+
+            steps = (dist2GoalXY / steps2goal).astype(int)
+
+            self.pos += steps
+
+            self.__posHistory.append(np.array(self.pos, dtype=np.int64))
+            self.__draw(screen)
+        else:
+            self.goalReached = True
+            self.__moving    = False
 
     def followObstacleBoundary(self):
         pass
@@ -74,11 +99,11 @@ class Robot:
             pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
 
             if wasMousePresed:
-                self.pos   = currentPos
+                self.pos   = np.array(currentPos, dtype=np.int64)
                 self.exist = True
                 button.reset()
-
-        self.__draw(screen)
+        if not self.__moving:
+            self.__draw(screen)
 
     def drawHistory(self, screen):
         """
@@ -90,10 +115,10 @@ class Robot:
         """
         nOfSteps = len(self.__posHistory)
 
-        for i, pos in enumerate(self.__posHistory, start=1):
+        for i, pos in enumerate(self.__posHistory):
             alphaColor = (i / nOfSteps) * 255
-            alphaColor = int(alphaColor)
-            newColor   = (255, alphaColor, alphaColor)
+            alphaColor = 255 - int(alphaColor)
+            newColor   = (alphaColor, alphaColor, 255)
 
             pygame.draw.circle(screen, newColor, pos, self.__radius // 2)
 
@@ -105,9 +130,11 @@ class Robot:
         Returns:
             None
         """
-        self.pos           = None
-        self.exist         = False
-        self.__posHistory  = []
+        self.pos          = None
+        self.exist        = False
+        self.goalReached  = False
+        self.__moving     = False 
+        self.__posHistory = []
 
     def __draw(self, screen):
         if self.exist:
@@ -150,7 +177,7 @@ class Goal:
             pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
 
             if wasMousePresed:
-                self.pos   = currentPos
+                self.pos   = np.array(currentPos, dtype=np.int64)
                 self.exist = True
                 button.reset()
 
