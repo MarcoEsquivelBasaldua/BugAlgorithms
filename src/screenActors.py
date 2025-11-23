@@ -46,8 +46,8 @@ class Robot:
         self.pos           = None
         self.exist         = False
         self.goalReached   = False
-        self.__step        = 10
-        self.__nearGoalTh  = 10
+        self.__step        = 3
+        self.__nearGoalTh  = 5
         self.__moving      = False
         self.__posHistory  = []
         self.__radius      = 10
@@ -70,7 +70,7 @@ class Robot:
             dist2GoalXY  = goalPos - self.pos
             steps2goal = int(dist2Goal / self.__step)
 
-            steps = (dist2GoalXY / steps2goal).astype(int)
+            steps = np.round(dist2GoalXY / steps2goal).astype(int)
 
             self.pos += steps
 
