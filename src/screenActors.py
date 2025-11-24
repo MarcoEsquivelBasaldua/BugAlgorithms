@@ -87,7 +87,7 @@ class Robot:
 
             # Check new position collision
             heading = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            self.checkCollision(screen, obstacleColor)
+            angles = self.checkCollision(screen, obstacleColor)
         else:
             self.goalReached = True
             self.__moving    = False
@@ -150,14 +150,15 @@ class Robot:
 
     def checkCollision(self, screen, obstacleColor):
         """
-        Checks for collisions with obstacles around the robot using its range sensor.
+        Checks for collisions around the robot using its range sensor.
         Arguments:
             screen: The pygame surface where the robot is drawn.
             obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
-            None
+            A list containing the first and last contact angles where a collision is detected.
         """
-        self.collision  = False
+        self.collision      = False
+        firstAndLastContact = []
 
         for angle in self.__checkAngles:
             checkPos  = np.array((np.cos(angle), np.sin(angle)))
@@ -167,7 +168,13 @@ class Robot:
 
             if screen.get_at(checkPos) == obstacleColor:
                 self.collision = True
-                break
+                if len(firstAndLastContact) < 2:
+                    firstAndLastContact.append(angle)
+                else:
+                    firstAndLastContact[1] = angle
+
+        return firstAndLastContact
+
 
     def __draw(self, screen):
         if self.exist:
