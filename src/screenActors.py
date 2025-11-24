@@ -46,15 +46,17 @@ class Robot:
         self.pos           = None
         self.exist         = False
         self.goalReached   = False
+        self.collision     = False
         self.__step        = 3
         self.__nearGoalTh  = 5
         self.__moving      = False
         self.__posHistory  = []
         self.__radius      = 10
         self.__color       = color
-        self.__rangeSensor = rangeSensor
+        self.__rangeSensor = max(self.__step, rangeSensor)
+        self.__rangeSensor += self.__radius
 
-    def moveTowardGoal(self, screen, goalPos):
+    def moveTowardGoal(self, screen, goalPos, obstacleColor):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
@@ -67,8 +69,8 @@ class Robot:
         dist2Goal     = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
-            dist2GoalXY  = goalPos - self.pos
-            steps2goal = int(dist2Goal / self.__step)
+            dist2GoalXY    = goalPos - self.pos
+            steps2goal     = int(dist2Goal / self.__step)
 
             steps = np.round(dist2GoalXY / steps2goal).astype(int)
 
@@ -76,6 +78,10 @@ class Robot:
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
+
+            # Check new position collision
+            heading = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+            self.collision = self.checkCollision(screen, heading, obstacleColor)
         else:
             self.goalReached = True
             self.__moving    = False
@@ -136,15 +142,30 @@ class Robot:
         self.__moving     = False 
         self.__posHistory = []
 
+    def checkCollision(self, screen, heading, obstacleColor):
+        collision  = False
+        samples    = 5
+        checkArc   = 0.5 * np.pi
+        firstCheck = heading - (0.5 * checkArc)
+        angleRes   = checkArc / samples
+
+        for i in range(samples):
+            angle     = firstCheck + i * angleRes
+            angle     = (angle + np.pi) % (2 * np.pi) - np.pi  # Wrap angle
+            checkPos  = np.array((np.cos(angle), np.sin(angle)))
+            checkPos *= self.__rangeSensor
+            checkPos  =  np.round(checkPos).astype(np.int64)
+            checkPos += self.pos
+
+            if screen.get_at(checkPos) == obstacleColor:
+                collision = True
+                break
+
+        return collision
+
     def __draw(self, screen):
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
-
-    def __add2History(self):
-        pass
-
-    def __obstacleEncountered(self):
-        pass
 
 
 class Goal:
