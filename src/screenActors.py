@@ -46,6 +46,7 @@ class Robot:
         self.pos           = None
         self.exist         = False
         self.goalReached   = False
+        self.heading       = 0.0
         self.__step        = 3
         self.__nearGoalTh  = 5
         self.__moving      = False
@@ -56,11 +57,11 @@ class Robot:
         self.__rangeSensor += self.__radius
 
         # Collision check flag
-        samples          = 24
-        angleRes         = (2.0 * np.pi) / samples
-        checkAngles      = np.array(list(range(samples))).astype(np.float64)
+        samples            = 24
+        angleRes           = (2.0 * np.pi) / samples
+        checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
-        self.collision   = False
+        self.collision     = False
 
     def moveTowardGoal(self, screen, goalPos, obstacleColor):
         """
@@ -86,8 +87,7 @@ class Robot:
             self.__draw(screen)
 
             # Check new position collision
-            heading = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            angles = self.checkCollision(screen, obstacleColor)
+            self.heading = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
         else:
             self.goalReached = True
             self.__moving    = False
