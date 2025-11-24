@@ -119,7 +119,8 @@ if __name__ == "__main__":
 
         # Move to goal
         if GO_BUTTON.wasPressed == True and robot.goalReached == False:
-            robot.moveTowardGoal(screen, goal.pos)
+            if not robot.collision:
+                robot.moveTowardGoal(screen, goal.pos, OBSTACLE_COLOR)
 
             robot.drawHistory(screen)
 
