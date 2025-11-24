@@ -46,7 +46,6 @@ class Robot:
         self.pos           = None
         self.exist         = False
         self.goalReached   = False
-        self.collision     = False
         self.__step        = 3
         self.__nearGoalTh  = 5
         self.__moving      = False
@@ -55,6 +54,13 @@ class Robot:
         self.__color       = color
         self.__rangeSensor = max(self.__step, rangeSensor)
         self.__rangeSensor += self.__radius
+
+        # Collision check flag
+        samples          = 24
+        angleRes         = (2.0 * np.pi) / samples
+        checkAngles      = np.array(list(range(samples))).astype(np.float64)
+        self.__checkAngles = angleRes * checkAngles
+        self.collision   = False
 
     def moveTowardGoal(self, screen, goalPos, obstacleColor):
         """
@@ -81,7 +87,7 @@ class Robot:
 
             # Check new position collision
             heading = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            self.collision = self.checkCollision(screen, heading, obstacleColor)
+            self.checkCollision(screen, obstacleColor)
         else:
             self.goalReached = True
             self.__moving    = False
@@ -142,34 +148,26 @@ class Robot:
         self.__moving     = False 
         self.__posHistory = []
 
-    def checkCollision(self, screen, heading, obstacleColor):
+    def checkCollision(self, screen, obstacleColor):
         """
-        Checks for collision with obstacles in the robot's path based on its heading.
+        Checks for collisions with obstacles around the robot using its range sensor.
         Arguments:
             screen: The pygame surface where the robot is drawn.
-            heading: The heading angle of the robot in radians.
+            obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
-            A boolean indicating whether a collision is detected.
+            None
         """
-        collision  = False
-        samples    = 5
-        checkArc   = 0.5 * np.pi
-        firstCheck = heading - (0.5 * checkArc)
-        angleRes   = checkArc / samples
+        self.collision  = False
 
-        for i in range(samples):
-            angle     = firstCheck + i * angleRes
-            angle     = (angle + np.pi) % (2 * np.pi) - np.pi  # Wrap angle
+        for angle in self.__checkAngles:
             checkPos  = np.array((np.cos(angle), np.sin(angle)))
             checkPos *= self.__rangeSensor
             checkPos  =  np.round(checkPos).astype(np.int64)
             checkPos += self.pos
 
             if screen.get_at(checkPos) == obstacleColor:
-                collision = True
+                self.collision = True
                 break
-
-        return collision
 
     def __draw(self, screen):
         if self.exist:
