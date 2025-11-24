@@ -143,6 +143,14 @@ class Robot:
         self.__posHistory = []
 
     def checkCollision(self, screen, heading, obstacleColor):
+        """
+        Checks for collision with obstacles in the robot's path based on its heading.
+        Arguments:
+            screen: The pygame surface where the robot is drawn.
+            heading: The heading angle of the robot in radians.
+        Returns:
+            A boolean indicating whether a collision is detected.
+        """
         collision  = False
         samples    = 5
         checkArc   = 0.5 * np.pi
