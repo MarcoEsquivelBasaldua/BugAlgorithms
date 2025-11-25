@@ -89,8 +89,37 @@ class Robot:
             self.goalReached = True
             self.__moving    = False
 
-    def followObstacleBoundary(self):
-        pass
+    def followObstacleBoundary(self, screen, goalPos, collisionAngles):
+        self.__moving = True
+
+        dist2Goal     = distance(self.pos, goalPos)
+
+        if dist2Goal > self.__nearGoalTh:
+            collisionAnglesLen = len(collisionAngles)
+
+            if collisionAnglesLen > 0:
+
+                if collisionAnglesLen == 2:
+                    normal2Obs = mean_angle(collisionAngles)
+                else:
+                    normal2Obs = collisionAngles[0]
+
+                heading = normal2Obs + (0.5 * np.pi)
+                heading = wrapAngle(heading)
+            else:
+                self.heading = 0.0
+
+            newPos = self.__moveOneStep(heading)
+
+            self.pos += newPos
+
+            self.__posHistory.append(np.array(self.pos, dtype=np.int64))
+            self.__draw(screen)
+
+        else:
+            self.goalReached = True
+            self.__moving    = False
+
 
     def placeRobot(self, screen, button, toolbarWidth, wasMousePresed):
         """
@@ -345,10 +374,27 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
             drawObstacle(screen, newObstacle, color, lineWidth)
 
 def wrapAngle(angleRadians):
-    """Wraps an angle to the range [-pi, pi) radians."""
     wrapped_angle = angleRadians % (2 * np.pi)
 
     if wrapped_angle >= np.pi:
         wrapped_angle -= (2 * np.pi)
         
     return wrapped_angle
+
+def mean_angle(angles):
+    angle1 = angles[0]
+    angle2 = angles[1]
+
+    # Convert angles to 2D vectors
+    x1, y1 = np.cos(angle1), np.sin(angle1)
+    x2, y2 = np.cos(angle2), np.sin(angle2)
+
+    # Sum the vectors
+    xSum = x1 + x2
+    ySum = y1 + y2
+
+    # Calculate the angle of the resulting vector
+    meanAngle = np.atan2(ySum, xSum)
+
+    return meanAngle
+    
