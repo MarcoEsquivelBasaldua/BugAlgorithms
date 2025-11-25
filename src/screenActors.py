@@ -63,7 +63,7 @@ class Robot:
         self.__checkAngles = angleRes * checkAngles
         self.collision     = False
 
-    def moveTowardGoal(self, screen, goalPos, obstacleColor):
+    def moveTowardGoal(self, screen, goalPos):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
@@ -76,17 +76,15 @@ class Robot:
         dist2Goal     = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
-            dist2GoalXY  = goalPos - self.pos
-            heading      = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            heading      = wrapAngle(heading)
-            self.heading = heading
-            newPos       = self.__step * np.array((np.cos(heading), np.sin(heading))).astype(float)
-            newPos       = np.round(newPos).astype(int)
-            self.pos    += newPos
+            dist2GoalXY = goalPos - self.pos
+            heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+            
+            newPos = self.__moveOneStep(heading)
+
+            self.pos += newPos
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
-            
         else:
             self.goalReached = True
             self.__moving    = False
@@ -177,8 +175,30 @@ class Robot:
 
 
     def __draw(self, screen):
+        """
+        Draws the robot on the screen if it exists.
+        Arguments:
+            screen: The pygame surface where the robot will be drawn.
+        Returns:
+            None
+        """
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+
+    def __moveOneStep(self, heading):
+        """
+        Moves the robot one step in the specified heading direction.
+        Arguments:
+            heading: The heading angle in radians.
+        Returns:
+            A numpy array representing the change in position (x, y)."""
+        heading      = wrapAngle(heading)
+        self.heading = heading
+        newPos       = self.__step * np.array((np.cos(heading), np.sin(heading))).astype(float)
+        newPos       = np.round(newPos).astype(int)
+
+        return newPos
+
 
 
 class Goal:

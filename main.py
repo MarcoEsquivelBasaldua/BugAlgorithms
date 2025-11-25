@@ -123,7 +123,7 @@ if __name__ == "__main__":
             angles = robot.checkCollision(screen, OBSTACLE_COLOR)
 
             if not robot.collision:
-                robot.moveTowardGoal(screen, goal.pos, OBSTACLE_COLOR)
+                robot.moveTowardGoal(screen, goal.pos)
 
             robot.drawHistory(screen)
 
