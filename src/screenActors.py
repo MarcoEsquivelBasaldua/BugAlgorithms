@@ -76,18 +76,17 @@ class Robot:
         dist2Goal     = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
-            dist2GoalXY    = goalPos - self.pos
-            steps2goal     = int(dist2Goal / self.__step)
-
-            steps = np.round(dist2GoalXY / steps2goal).astype(int)
-
-            self.pos += steps
+            dist2GoalXY  = goalPos - self.pos
+            heading      = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+            heading      = wrapAngle(heading)
+            self.heading = heading
+            newPos       = self.__step * np.array((np.cos(heading), np.sin(heading))).astype(float)
+            newPos       = np.round(newPos).astype(int)
+            self.pos    += newPos
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
-
-            # Check new position collision
-            self.heading = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+            
         else:
             self.goalReached = True
             self.__moving    = False
@@ -145,6 +144,7 @@ class Robot:
         self.pos          = None
         self.exist        = False
         self.goalReached  = False
+        self.heading      = 0.0
         self.__moving     = False 
         self.__posHistory = []
 
@@ -323,3 +323,12 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
 
         if len(newObstacle.vertices) > 1:
             drawObstacle(screen, newObstacle, color, lineWidth)
+
+def wrapAngle(angleRadians):
+    """Wraps an angle to the range [-pi, pi) radians."""
+    wrapped_angle = angleRadians % (2 * np.pi)
+
+    if wrapped_angle >= np.pi:
+        wrapped_angle -= (2 * np.pi)
+        
+    return wrapped_angle
