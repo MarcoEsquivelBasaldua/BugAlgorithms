@@ -119,8 +119,13 @@ if __name__ == "__main__":
 
         # Move to goal
         if GO_BUTTON.wasPressed == True and robot.goalReached == False:
+            # Check collision
+            collisionAngles = robot.checkCollision(screen, OBSTACLE_COLOR)
+
             if not robot.collision:
-                robot.moveTowardGoal(screen, goal.pos, OBSTACLE_COLOR)
+                robot.moveTowardGoal(screen, goal.pos)
+            else:
+                robot.followObstacleBoundary(screen, goal.pos, collisionAngles)
 
             robot.drawHistory(screen)
 

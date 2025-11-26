@@ -46,7 +46,7 @@ class Robot:
         self.pos           = None
         self.exist         = False
         self.goalReached   = False
-        self.collision     = False
+        self.heading       = 0.0
         self.__step        = 3
         self.__nearGoalTh  = 5
         self.__moving      = False
@@ -54,9 +54,16 @@ class Robot:
         self.__radius      = 10
         self.__color       = color
         self.__rangeSensor = max(self.__step, rangeSensor)
-        self.__rangeSensor += self.__radius
+        self.__rangeSensor += (self.__radius)
 
-    def moveTowardGoal(self, screen, goalPos, obstacleColor):
+        # Collision check flag
+        samples            = 24
+        angleRes           = (2.0 * np.pi) / samples
+        checkAngles        = np.array(list(range(samples))).astype(np.float64)
+        self.__checkAngles = angleRes * checkAngles
+        self.collision     = False
+
+    def moveTowardGoal(self, screen, goalPos):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
@@ -69,25 +76,50 @@ class Robot:
         dist2Goal     = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
-            dist2GoalXY    = goalPos - self.pos
-            steps2goal     = int(dist2Goal / self.__step)
+            dist2GoalXY = goalPos - self.pos
+            heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+            
+            newPos = self.__moveOneStep(heading)
 
-            steps = np.round(dist2GoalXY / steps2goal).astype(int)
-
-            self.pos += steps
+            self.pos += newPos
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
-
-            # Check new position collision
-            heading = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            self.collision = self.checkCollision(screen, heading, obstacleColor)
         else:
             self.goalReached = True
             self.__moving    = False
 
-    def followObstacleBoundary(self):
-        pass
+    def followObstacleBoundary(self, screen, goalPos, collisionAngles):
+        self.__moving = True
+
+        dist2Goal     = distance(self.pos, goalPos)
+
+        if dist2Goal > self.__nearGoalTh:
+            collisionAnglesLen = len(collisionAngles)
+
+            if collisionAnglesLen > 0:
+
+                if collisionAnglesLen == 2:
+                    normal2Obs = mean_angle(collisionAngles)
+                else:
+                    normal2Obs = collisionAngles[0]
+
+                heading = normal2Obs + (0.5 * np.pi)
+                heading = wrapAngle(heading)
+            else:
+                self.heading = 0.0
+
+            newPos = self.__moveOneStep(heading)
+
+            self.pos += newPos
+
+            self.__posHistory.append(np.array(self.pos, dtype=np.int64))
+            self.__draw(screen)
+
+        else:
+            self.goalReached = True
+            self.__moving    = False
+
 
     def placeRobot(self, screen, button, toolbarWidth, wasMousePresed):
         """
@@ -126,7 +158,7 @@ class Robot:
             alphaColor = 255 - int(alphaColor)
             newColor   = (alphaColor, alphaColor, 255)
 
-            pygame.draw.circle(screen, newColor, pos, self.__radius // 2)
+            pygame.draw.circle(screen, newColor, pos, self.__radius // 4)
 
     def reset(self):
         """
@@ -139,41 +171,63 @@ class Robot:
         self.pos          = None
         self.exist        = False
         self.goalReached  = False
+        self.heading      = 0.0
         self.__moving     = False 
         self.__posHistory = []
 
-    def checkCollision(self, screen, heading, obstacleColor):
+    def checkCollision(self, screen, obstacleColor):
         """
-        Checks for collision with obstacles in the robot's path based on its heading.
+        Checks for collisions around the robot using its range sensor.
         Arguments:
             screen: The pygame surface where the robot is drawn.
-            heading: The heading angle of the robot in radians.
+            obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
-            A boolean indicating whether a collision is detected.
+            A list containing the first and last contact angles where a collision is detected.
         """
-        collision  = False
-        samples    = 5
-        checkArc   = 0.5 * np.pi
-        firstCheck = heading - (0.5 * checkArc)
-        angleRes   = checkArc / samples
+        self.collision      = False
+        firstAndLastContact = []
 
-        for i in range(samples):
-            angle     = firstCheck + i * angleRes
-            angle     = (angle + np.pi) % (2 * np.pi) - np.pi  # Wrap angle
+        for angle in self.__checkAngles:
             checkPos  = np.array((np.cos(angle), np.sin(angle)))
             checkPos *= self.__rangeSensor
             checkPos  =  np.round(checkPos).astype(np.int64)
             checkPos += self.pos
 
             if screen.get_at(checkPos) == obstacleColor:
-                collision = True
-                break
+                self.collision = True
+                if len(firstAndLastContact) < 2:
+                    firstAndLastContact.append(angle)
+                else:
+                    firstAndLastContact[1] = angle
 
-        return collision
+        return firstAndLastContact
+
 
     def __draw(self, screen):
+        """
+        Draws the robot on the screen if it exists.
+        Arguments:
+            screen: The pygame surface where the robot will be drawn.
+        Returns:
+            None
+        """
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+
+    def __moveOneStep(self, heading):
+        """
+        Moves the robot one step in the specified heading direction.
+        Arguments:
+            heading: The heading angle in radians.
+        Returns:
+            A numpy array representing the change in position (x, y)."""
+        heading      = wrapAngle(heading)
+        self.heading = heading
+        newPos       = self.__step * np.array((np.cos(heading), np.sin(heading))).astype(float)
+        newPos       = np.round(newPos).astype(int)
+
+        return newPos
+
 
 
 class Goal:
@@ -233,6 +287,7 @@ class Goal:
         """
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+
 
 # Functions
 
@@ -318,3 +373,79 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
 
         if len(newObstacle.vertices) > 1:
             drawObstacle(screen, newObstacle, color, lineWidth)
+
+def wrapAngle(angleRadians):
+    """
+    Wraps an angle in radians to the range [-π, π].
+    Arguments:
+        angleRadians: The angle in radians to be wrapped.
+    Returns:
+        The wrapped angle in radians.
+    """
+    wrapped_angle = angleRadians % (2 * np.pi)
+
+    if wrapped_angle >= np.pi:
+        wrapped_angle -= (2 * np.pi)
+        
+    return wrapped_angle
+
+def mean_angle(angles):
+    """
+    Calculates the mean of a list of angles in radians.
+    Arguments:
+        angles: A list of angles in radians.
+    Returns:
+        The mean angle in radians.
+    """
+    angle1 = angles[0]
+    angle2 = angles[1]
+
+    # Convert angles to 2D vectors
+    x1, y1 = np.cos(angle1), np.sin(angle1)
+    x2, y2 = np.cos(angle2), np.sin(angle2)
+
+    # Sum the vectors
+    xSum = x1 + x2
+    ySum = y1 + y2
+
+    # Calculate the angle of the resulting vector
+    meanAngle = np.atan2(ySum, xSum)
+
+    return meanAngle
+
+def angleDiff(angle1, angle2):
+    """
+    Calculates the smallest difference between two angles.
+    Arguments:
+        angle1: The first angle in radians.
+        angle2: The second angle in radians.
+    Returns:
+        The smallest difference between the two angles in radians.
+    """
+    diff = abs(angle1 - angle2)
+    return min(diff, np.pi - diff)
+    
+
+def linearRegression(xMin, xMax, yMin, yMax, value):
+    """
+    Performs linear regression to map a value from one range to another.
+    Arguments:
+        xMin: The minimum value of the input range.
+        xMax: The maximum value of the input range.
+        yMin: The minimum value of the output range.
+        yMax: The maximum value of the output range.
+        value: The input value to be mapped.
+    Returns:
+        The mapped value in the output range.
+    """
+    if value >= xMax:
+        return yMax
+    elif value <= xMax:
+        return yMin
+    
+    deltaX = (xMax - xMin)
+    deltaY = (yMax - yMin)
+    m      = deltaY / deltaX
+
+    return (m * (value - xMin) + yMin)
+
