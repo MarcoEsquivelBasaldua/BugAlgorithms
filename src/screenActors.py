@@ -2,6 +2,8 @@ import pygame
 import copy
 import numpy as np
 
+twoPi = 2.0 * np.pi
+
 class Obstacle:
     def __init__(self):
         """
@@ -57,8 +59,8 @@ class Robot:
         self.__rangeSensor += (self.__radius)
 
         # Collision check flag
-        samples            = 24
-        angleRes           = (2.0 * np.pi) / samples
+        samples            = 48
+        angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
         self.collision     = False
@@ -101,17 +103,31 @@ class Robot:
 
                 if collisionAnglesLen == 2:
                     normal2Obs = mean_angle(collisionAngles)
+                    anglesDiff = angleDiff(collisionAngles[0], collisionAngles[1])
                 else:
                     normal2Obs = collisionAngles[0]
+                    anglesDiff = 0.0
 
                 heading = normal2Obs + (0.5 * np.pi)
                 heading = wrapAngle(heading)
+
+                # Get angles difference, map to a distance and pull robot away from obstacle
+                correctDistance = linearRegression(0.0, np.pi, 0.0, 3, anglesDiff)
             else:
-                self.heading = 0.0
+                normal2Obs      = 0.0
+                self.heading    = 0.0
+                correctDistance = 0.0
 
             newPos = self.__moveOneStep(heading)
+            pos    = self.pos + newPos
 
-            self.pos += newPos
+            # Pull robot away from obstacle
+            normalFromObs = normal2Obs + np.pi
+            normalFromObs = wrapAngle(normalFromObs)
+            deltaXY = correctDistance * np.array(np.cos(normalFromObs), np.sin(normalFromObs))
+            deltaXY = np.round(deltaXY).astype(int)
+
+            self.pos = pos + deltaXY
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
@@ -158,7 +174,7 @@ class Robot:
             alphaColor = 255 - int(alphaColor)
             newColor   = (alphaColor, alphaColor, 255)
 
-            pygame.draw.circle(screen, newColor, pos, self.__radius // 4)
+            pygame.draw.circle(screen, newColor, pos, self.__radius // 3)
 
     def reset(self):
         """
@@ -324,7 +340,7 @@ def drawObstacle(screen, obstacle, color, width):
     lastVertice = initPos
 
     for i in range(nOfVertices):
-        pygame.draw.circle(screen, color, obstacle.vertices[i], width // 2)
+        pygame.draw.circle(screen, color, obstacle.vertices[i], int(0.4 * width))
         if i < (nOfVertices - 1):
             lastVertice = obstacle.vertices[i+1]
             
@@ -361,7 +377,7 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
                 newVertice = currentMousePos
 
             pygame.draw.line(screen, color, newObstacle.vertices[-1], newVertice, lineWidth)
-        pygame.draw.circle(screen, color, newVertice, lineWidth // 2)
+        pygame.draw.circle(screen, color, newVertice, int(0.4 * lineWidth))
 
         if wasMousePresed:
             newObstacle.addVertice(newVertice)
@@ -376,18 +392,13 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
 
 def wrapAngle(angleRadians):
     """
-    Wraps an angle in radians to the range [-π, π].
+    Wraps an angle in radians to the range [0, 2π].
     Arguments:
         angleRadians: The angle in radians to be wrapped.
     Returns:
         The wrapped angle in radians.
     """
-    wrapped_angle = angleRadians % (2 * np.pi)
-
-    if wrapped_angle >= np.pi:
-        wrapped_angle -= (2 * np.pi)
-        
-    return wrapped_angle
+    return angleRadians % twoPi
 
 def mean_angle(angles):
     """
@@ -422,8 +433,9 @@ def angleDiff(angle1, angle2):
     Returns:
         The smallest difference between the two angles in radians.
     """
-    diff = abs(angle1 - angle2)
-    return min(diff, np.pi - diff)
+    diff = np.abs(angle1 - angle2)
+    diff = diff % twoPi
+    return min(diff, twoPi - diff)
     
 
 def linearRegression(xMin, xMax, yMin, yMax, value):
@@ -440,7 +452,7 @@ def linearRegression(xMin, xMax, yMin, yMax, value):
     """
     if value >= xMax:
         return yMax
-    elif value <= xMax:
+    elif value <= xMin:
         return yMin
     
     deltaX = (xMax - xMin)
