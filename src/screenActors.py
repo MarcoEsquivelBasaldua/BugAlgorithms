@@ -54,7 +54,7 @@ class Robot:
         self.__radius      = 10
         self.__color       = color
         self.__rangeSensor = max(self.__step, rangeSensor)
-        self.__rangeSensor += self.__radius
+        self.__rangeSensor += (self.__radius)
 
         # Collision check flag
         samples            = 24
@@ -158,7 +158,7 @@ class Robot:
             alphaColor = 255 - int(alphaColor)
             newColor   = (alphaColor, alphaColor, 255)
 
-            pygame.draw.circle(screen, newColor, pos, self.__radius // 2)
+            pygame.draw.circle(screen, newColor, pos, self.__radius // 4)
 
     def reset(self):
         """
@@ -288,6 +288,7 @@ class Goal:
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
+
 # Functions
 
 def distance(x1, x2):
@@ -398,3 +399,27 @@ def mean_angle(angles):
 
     return meanAngle
     
+
+def linearRegression(xMin, xMax, yMin, yMax, value):
+    """
+    Performs linear regression to map a value from one range to another.
+    Arguments:
+        xMin: The minimum value of the input range.
+        xMax: The maximum value of the input range.
+        yMin: The minimum value of the output range.
+        yMax: The maximum value of the output range.
+        value: The input value to be mapped.
+    Returns:
+        The mapped value in the output range.
+    """
+    if value >= xMax:
+        return yMax
+    elif value <= xMax:
+        return yMin
+    
+    deltaX = (xMax - xMin)
+    deltaY = (yMax - yMin)
+    m      = deltaY / deltaX
+
+    return (m * (value - xMin) + yMin)
+
