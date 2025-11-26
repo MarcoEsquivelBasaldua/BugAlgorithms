@@ -375,6 +375,13 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
             drawObstacle(screen, newObstacle, color, lineWidth)
 
 def wrapAngle(angleRadians):
+    """
+    Wraps an angle in radians to the range [-π, π].
+    Arguments:
+        angleRadians: The angle in radians to be wrapped.
+    Returns:
+        The wrapped angle in radians.
+    """
     wrapped_angle = angleRadians % (2 * np.pi)
 
     if wrapped_angle >= np.pi:
@@ -383,6 +390,13 @@ def wrapAngle(angleRadians):
     return wrapped_angle
 
 def mean_angle(angles):
+    """
+    Calculates the mean of a list of angles in radians.
+    Arguments:
+        angles: A list of angles in radians.
+    Returns:
+        The mean angle in radians.
+    """
     angle1 = angles[0]
     angle2 = angles[1]
 
@@ -399,7 +413,7 @@ def mean_angle(angles):
 
     return meanAngle
 
-def angle_diff(angle1, angle2):
+def angleDiff(angle1, angle2):
     """
     Calculates the smallest difference between two angles.
     Arguments:
