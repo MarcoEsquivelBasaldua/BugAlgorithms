@@ -398,6 +398,18 @@ def mean_angle(angles):
     meanAngle = np.atan2(ySum, xSum)
 
     return meanAngle
+
+def angle_diff(angle1, angle2):
+    """
+    Calculates the smallest difference between two angles.
+    Arguments:
+        angle1: The first angle in radians.
+        angle2: The second angle in radians.
+    Returns:
+        The smallest difference between the two angles in radians.
+    """
+    diff = abs(angle1 - angle2)
+    return min(diff, np.pi - diff)
     
 
 def linearRegression(xMin, xMax, yMin, yMax, value):
