@@ -191,32 +191,39 @@ class Robot:
         self.__moving     = False 
         self.__posHistory = []
 
-    def checkCollision(self, screen, obstacleColor):
+    def checkCollision(self, screen, obstacleColor, localUse = False, pos = None):
         """
         Checks for collisions around the robot using its range sensor.
         Arguments:
             screen: The pygame surface where the robot is drawn.
             obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
+            A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
         """
-        self.collision      = False
+        collision           = False
         firstAndLastContact = []
+
+        if localUse:
+            usePos = pos
+        else:
+            usePos = self.pos
 
         for angle in self.__checkAngles:
             checkPos  = np.array((np.cos(angle), np.sin(angle)))
             checkPos *= self.__rangeSensor
             checkPos  =  np.round(checkPos).astype(np.int64)
-            checkPos += self.pos
+            checkPos += usePos
 
             if screen.get_at(checkPos) == obstacleColor:
+                collision = True
                 self.collision = True
                 if len(firstAndLastContact) < 2:
                     firstAndLastContact.append(angle)
                 else:
                     firstAndLastContact[1] = angle
 
-        return firstAndLastContact
+        return collision, firstAndLastContact
 
 
     def __draw(self, screen):
