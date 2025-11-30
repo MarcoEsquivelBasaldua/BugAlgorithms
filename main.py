@@ -56,6 +56,11 @@ if __name__ == "__main__":
     goal = screenActors.Goal(GOAL_COLOR)
     
     running = True
+
+    ###
+    #DEBUG
+    mustFollowObstacle = False
+    ###
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -110,6 +115,11 @@ if __name__ == "__main__":
             GO_BUTTON.reset()
             RESET_PLACES_BUTTON.reset()
 
+            ###
+            #DEBUG
+            mustFollowObstacle = False
+            ###
+
             if RESET_ALL_BUTTON.wasPressed:
                 obstacles = []
                 BUG1_BUTTON.reset()
@@ -120,12 +130,23 @@ if __name__ == "__main__":
         # Move to goal
         if GO_BUTTON.wasPressed == True and robot.goalReached == False:
             # Check collision
-            collisionAngles = robot.checkCollision(screen, OBSTACLE_COLOR)
+            collision, collisionAngles = robot.checkCollision(screen, OBSTACLE_COLOR)
 
-            if not robot.collision:
-                robot.moveTowardGoal(screen, goal.pos)
-            else:
+            ###
+            #DEBUG
+            if collision:
+                mustFollowObstacle = True
+
+            if mustFollowObstacle:
                 robot.followObstacleBoundary(screen, goal.pos, collisionAngles)
+            else:
+                robot.moveTowardGoal(screen, goal.pos)
+            ###
+
+            # if not robot.collision:
+            #     robot.moveTowardGoal(screen, goal.pos)
+            # else:
+            #     robot.followObstacleBoundary(screen, goal.pos, collisionAngles)
 
             robot.drawHistory(screen)
 
