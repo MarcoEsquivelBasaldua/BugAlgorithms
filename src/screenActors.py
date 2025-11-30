@@ -100,6 +100,7 @@ class Robot:
             if collisionAnglesLen > 0:
 
                 if collisionAnglesLen == 2:
+                    print(np.rad2deg(collisionAngles[0]), np.rad2deg(collisionAngles[1]))
                     normal2Obs = mean_angle(collisionAngles)
                     anglesDiff = angleDiff(collisionAngles[0], collisionAngles[1])
                 else:
@@ -108,6 +109,7 @@ class Robot:
 
                 heading = normal2Obs + (0.5 * np.pi)
                 heading = wrapAngle(heading)
+                print(np.rad2deg(normal2Obs))
             else:
                 print('This should not happen')
                 normal2Obs      = 0.0
@@ -123,11 +125,13 @@ class Robot:
 
             if collision: # Push robot away from obstacle
                 # Get angles difference, map to a distance and pull robot away from obstacle
-                correctDistance = linearRegression(0.0, np.pi, 0.0, 3, anglesDiff)
+                correctDistance = linearRegression(0.0, np.pi, 0.0, 2, anglesDiff)
                 normalFromObs   = normal2Obs + np.pi
                 normalFromObs   = wrapAngle(normalFromObs)
-                deltaXY         = correctDistance * np.array(np.cos(normalFromObs), np.sin(normalFromObs))
+                print(np.rad2deg(normalFromObs))
+                deltaXY         = correctDistance * np.array((np.cos(normalFromObs), np.sin(normalFromObs)))
                 deltaXY         = np.round(deltaXY).astype(int)
+                print(deltaXY)
                 pos            += deltaXY
 
             else: # Pull robot toward the obstacle
@@ -446,6 +450,7 @@ def mean_angle(angles):
 
     # Calculate the angle of the resulting vector
     meanAngle = np.atan2(ySum, xSum)
+    meanAngle = wrapAngle(meanAngle)
 
     return meanAngle
 
@@ -458,8 +463,10 @@ def angleDiff(angle1, angle2):
     Returns:
         The smallest difference between the two angles in radians.
     """
-    diff = np.abs(angle1 - angle2)
-    diff = diff % twoPi
+    angle1 = wrapAngle(angle1)
+    angle2 = wrapAngle(angle2)
+    diff   = np.abs(angle1 - angle2)
+    #diff = diff % twoPi
     return min(diff, twoPi - diff)
     
 
