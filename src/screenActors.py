@@ -63,7 +63,6 @@ class Robot:
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
-        self.collision     = False
 
     def moveTowardGoal(self, screen, goalPos):
         """
@@ -93,7 +92,6 @@ class Robot:
 
     def followObstacleBoundary(self, screen, goalPos, collisionAngles):
         self.__moving = True
-
         dist2Goal     = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
@@ -110,24 +108,45 @@ class Robot:
 
                 heading = normal2Obs + (0.5 * np.pi)
                 heading = wrapAngle(heading)
-
-                # Get angles difference, map to a distance and pull robot away from obstacle
-                correctDistance = linearRegression(0.0, np.pi, 0.0, 3, anglesDiff)
             else:
+                print('This should not happen')
                 normal2Obs      = 0.0
                 self.heading    = 0.0
                 correctDistance = 0.0
 
+            # Propose new position
             newPos = self.__moveOneStep(heading)
             pos    = self.pos + newPos
 
-            # Pull robot away from obstacle
-            normalFromObs = normal2Obs + np.pi
-            normalFromObs = wrapAngle(normalFromObs)
-            deltaXY = correctDistance * np.array(np.cos(normalFromObs), np.sin(normalFromObs))
-            deltaXY = np.round(deltaXY).astype(int)
+            # Check if new position is still in contact to obstacle
+            collision, _ = self.checkCollision(screen, (0, 0, 0), True, pos)
 
-            self.pos = pos + deltaXY
+            if collision: # Push robot away from obstacle
+                # Get angles difference, map to a distance and pull robot away from obstacle
+                correctDistance = linearRegression(0.0, np.pi, 0.0, 3, anglesDiff)
+                normalFromObs   = normal2Obs + np.pi
+                normalFromObs   = wrapAngle(normalFromObs)
+                deltaXY         = correctDistance * np.array(np.cos(normalFromObs), np.sin(normalFromObs))
+                deltaXY         = np.round(deltaXY).astype(int)
+                pos            += deltaXY
+
+            else: # Pull robot toward the obstacle
+                print('obstacle lost')
+                steps2Check = 20
+                for step in range(1,steps2Check+1):
+                    newPos    = step * np.array((np.cos(normal2Obs), np.sin(normal2Obs))).astype(float)
+                    newPos    = np.round(newPos).astype(int)
+                    print(newPos)
+                    pos2Check = pos + newPos
+
+                    coll, _ = self.checkCollision(screen, (0,0,0), True, pos2Check)
+
+                    if coll:
+                        # Update robotPos
+                        pos = pos2Check
+                        break
+
+            self.pos = pos
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
@@ -217,7 +236,6 @@ class Robot:
 
             if screen.get_at(checkPos) == obstacleColor:
                 collision = True
-                self.collision = True
                 if len(firstAndLastContact) < 2:
                     firstAndLastContact.append(angle)
                 else:
