@@ -59,7 +59,7 @@ class Robot:
         self.__rangeSensor += (self.__radius)
 
         # Collision check flag
-        samples            = 48
+        samples            = 12
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
