@@ -79,6 +79,7 @@ class Robot:
         if dist2Goal > self.__nearGoalTh:
             dist2GoalXY = goalPos - self.pos
             heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+            heading     = wrapAngle(heading)
             
             newPos = self.__moveOneStep(heading)
 
@@ -115,6 +116,8 @@ class Robot:
                     normal2Obs = collisionAngles[0]
                     anglesDiff = 0.0
 
+                normal2Obs = wrapAngle(normal2Obs)
+
                 heading = normal2Obs + (0.5 * np.pi)
                 heading = wrapAngle(heading)
             else:
@@ -132,14 +135,17 @@ class Robot:
 
             if collision: # Push robot away from obstacle
                 # Get angles difference, map to a distance and pull robot away from obstacle
-                correctDistance = linearRegression(0.0, np.pi, 0.0, 2, anglesDiff)
+                correctDistance = linearRegression(0.0, np.pi, 0.0, 5, anglesDiff)
                 normalFromObs   = normal2Obs + np.pi
                 normalFromObs   = wrapAngle(normalFromObs)
                 deltaXY         = correctDistance * np.array((np.cos(normalFromObs), np.sin(normalFromObs)))
                 deltaXY         = np.round(deltaXY).astype(int)
                 pos            += deltaXY
 
-            else: # Pull robot toward the obstacle
+            # Check if new position is still in contact to obstacle
+            collision, _ = self.checkCollision(screen, (0, 0, 0), True, pos)
+
+            if not collision: # Pull robot toward the obstacle
                 steps2Check = 20
                 for step in range(1,steps2Check+1):
                     newPos    = step * np.array((np.cos(normal2Obs), np.sin(normal2Obs))).astype(float)
