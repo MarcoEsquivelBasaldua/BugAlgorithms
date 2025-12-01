@@ -100,7 +100,6 @@ class Robot:
             if collisionAnglesLen > 0:
 
                 if collisionAnglesLen == 2:
-                    print(np.rad2deg(collisionAngles[0]), np.rad2deg(collisionAngles[1]))
                     normal2Obs = mean_angle(collisionAngles)
                     anglesDiff = angleDiff(collisionAngles[0], collisionAngles[1])
                 else:
@@ -109,7 +108,6 @@ class Robot:
 
                 heading = normal2Obs + (0.5 * np.pi)
                 heading = wrapAngle(heading)
-                print(np.rad2deg(normal2Obs))
             else:
                 print('This should not happen')
                 normal2Obs      = 0.0
@@ -128,28 +126,24 @@ class Robot:
                 correctDistance = linearRegression(0.0, np.pi, 0.0, 2, anglesDiff)
                 normalFromObs   = normal2Obs + np.pi
                 normalFromObs   = wrapAngle(normalFromObs)
-                print(np.rad2deg(normalFromObs))
                 deltaXY         = correctDistance * np.array((np.cos(normalFromObs), np.sin(normalFromObs)))
                 deltaXY         = np.round(deltaXY).astype(int)
-                print(deltaXY)
                 pos            += deltaXY
 
             else: # Pull robot toward the obstacle
-                print('obstacle lost')
                 steps2Check = 20
                 for step in range(1,steps2Check+1):
                     newPos    = step * np.array((np.cos(normal2Obs), np.sin(normal2Obs))).astype(float)
                     newPos    = np.round(newPos).astype(int)
-                    print(newPos)
                     pos2Check = pos + newPos
 
                     coll, _ = self.checkCollision(screen, (0,0,0), True, pos2Check)
 
                     if coll:
-                        # Update robotPos
                         pos = pos2Check
                         break
 
+            # Update robotPos
             self.pos = pos
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
