@@ -91,6 +91,15 @@ class Robot:
             self.__moving    = False
 
     def followObstacleBoundary(self, screen, goalPos, collisionAngles):
+        """
+        Moves the robot along the boundary of an obstacle based on collision angles.
+        Arguments:
+            screen: The pygame surface where the robot will be drawn.
+            goalPos: A tuple representing the (x, y) coordinates of the goal position.
+            collisionAngles: A list of angles where the robot is in contact with the obstacle.
+        Returns:
+            None
+        """
         self.__moving = True
         dist2Goal     = distance(self.pos, goalPos)
 
