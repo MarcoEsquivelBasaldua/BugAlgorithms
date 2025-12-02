@@ -62,7 +62,7 @@ class Button:
         self.wasPressed     = False
         self.__currentColor = self.__color
 
-    def wasButtonPressed(self):
+    def was_button_pressed(self):
         """
         Returns whether the button was pressed.
         Arguments:

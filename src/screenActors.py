@@ -15,7 +15,7 @@ class Obstacle:
         """
         self.vertices   = []
 
-    def addVertice(self, vertice):
+    def add_vertice(self, vertice):
         """
         Adds a vertice to the obstacle's vertices list.
         Arguments:
@@ -64,7 +64,7 @@ class Robot:
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
 
-    def moveTowardGoal(self, screen, goalPos):
+    def move_toward_goal(self, screen, goalPos):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
@@ -73,25 +73,21 @@ class Robot:
         Returns:
             None
         """
-        self.__moving = True
-        dist2Goal     = distance(self.pos, goalPos)
+        self.is_goal_reached(goalPos)
 
-        if dist2Goal > self.__nearGoalTh:
+        if not self.goalReached:
             dist2GoalXY = goalPos - self.pos
             heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            heading     = wrapAngle(heading)
+            heading     = wrap_angle(heading)
             
-            newPos = self.__moveOneStep(heading)
+            newPos = self.__move_oneStep(heading)
 
             self.pos += newPos
 
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
-        else:
-            self.goalReached = True
-            self.__moving    = False
 
-    def followObstacleBoundary(self, screen, goalPos, collisionAngles):
+    def follow_obstacle_boundary(self, screen, goalPos, collisionAngles):
         """
         Moves the robot along the boundary of an obstacle based on collision angles.
         Arguments:
@@ -101,8 +97,7 @@ class Robot:
         Returns:
             None
         """
-       
-        self.isGoalReached(goalPos)
+        self.is_goal_reached(goalPos)
 
         if not self.goalReached:
             collisionAnglesLen = len(collisionAngles)
@@ -111,15 +106,15 @@ class Robot:
 
                 if collisionAnglesLen == 2:
                     normal2Obs = mean_angle(collisionAngles)
-                    anglesDiff = angleDiff(collisionAngles[0], collisionAngles[1])
+                    anglesDiff = angle_diff(collisionAngles[0], collisionAngles[1])
                 else:
                     normal2Obs = collisionAngles[0]
                     anglesDiff = 0.0
 
-                normal2Obs = wrapAngle(normal2Obs)
+                normal2Obs = wrap_angle(normal2Obs)
 
                 heading = normal2Obs + (0.5 * np.pi)
-                heading = wrapAngle(heading)
+                heading = wrap_angle(heading)
             else:
                 print('This should not happen')
                 heading         = self.heading
@@ -127,23 +122,23 @@ class Robot:
                 correctDistance = 0.0
 
             # Propose new position
-            newPos = self.__moveOneStep(heading)
+            newPos = self.__move_oneStep(heading)
             pos    = self.pos + newPos
 
             # Check if new position is still in contact to obstacle
-            collision, _ = self.checkCollision(screen, (0, 0, 0), True, pos)
+            collision, _ = self.check_collision(screen, (0, 0, 0), True, pos)
 
             if collision: # Push robot away from obstacle
                 # Get angles difference, map to a distance and pull robot away from obstacle
-                correctDistance = linearRegression(0.0, np.pi, 0.0, 5, anglesDiff)
+                correctDistance = linear_regression(0.0, np.pi, 0.0, 5, anglesDiff)
                 normalFromObs   = normal2Obs + np.pi
-                normalFromObs   = wrapAngle(normalFromObs)
+                normalFromObs   = wrap_angle(normalFromObs)
                 deltaXY         = correctDistance * np.array((np.cos(normalFromObs), np.sin(normalFromObs)))
                 deltaXY         = np.round(deltaXY).astype(int)
                 pos            += deltaXY
 
             # Check if new position is still in contact to obstacle
-            collision, _ = self.checkCollision(screen, (0, 0, 0), True, pos)
+            collision, _ = self.check_collision(screen, (0, 0, 0), True, pos)
 
             if not collision: # Pull robot toward the obstacle
                 steps2Check = 20
@@ -152,7 +147,7 @@ class Robot:
                     newPos    = np.round(newPos).astype(int)
                     pos2Check = pos + newPos
 
-                    coll, _ = self.checkCollision(screen, (0,0,0), True, pos2Check)
+                    coll, _ = self.check_collision(screen, (0,0,0), True, pos2Check)
 
                     if coll:
                         pos = pos2Check
@@ -165,7 +160,7 @@ class Robot:
             self.__draw(screen)
 
 
-    def placeRobot(self, screen, button, toolbarWidth, wasMousePresed):
+    def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
         """
         Places the robot on the screen when the specified button is pressed and the mouse is clicked.
         Arguments:
@@ -187,7 +182,7 @@ class Robot:
         if not self.__moving:
             self.__draw(screen)
 
-    def drawHistory(self, screen):
+    def draw_history(self, screen):
         """
         Draws the robot's position history on the screen with a fading effect.
         Arguments:
@@ -204,7 +199,7 @@ class Robot:
 
             pygame.draw.circle(screen, newColor, pos, self.__radius // 3)
 
-    def isGoalReached(self, goalPos):
+    def is_goal_reached(self, goalPos):
         """
         Checks if the robot has reached the specified goal position.
         Arguments:
@@ -238,7 +233,7 @@ class Robot:
         self.__moving     = False 
         self.__posHistory = []
 
-    def checkCollision(self, screen, obstacleColor, localUse = False, pos = None):
+    def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
         """
         Checks for collisions around the robot using its range sensor.
         Arguments:
@@ -283,14 +278,14 @@ class Robot:
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
-    def __moveOneStep(self, heading):
+    def __move_oneStep(self, heading):
         """
         Moves the robot one step in the specified heading direction.
         Arguments:
             heading: The heading angle in radians.
         Returns:
             A numpy array representing the change in position (x, y)."""
-        heading      = wrapAngle(heading)
+        heading      = wrap_angle(heading)
         self.heading = heading
         newPos       = self.__step * np.array((np.cos(heading), np.sin(heading))).astype(float)
         newPos       = np.round(newPos).astype(int)
@@ -313,7 +308,7 @@ class Goal:
         self.__color  = color
         self.__radius = 20
 
-    def placeGoal(self, screen, button, toolbarWidth, wasMousePresed):
+    def place_goal(self, screen, button, toolbarWidth, wasMousePresed):
         """
         Places the goal on the screen when the specified button is pressed and the mouse is clicked.
         Arguments:
@@ -387,7 +382,7 @@ def distance(x1, x2):
 
     return np.sqrt(sum_)
 
-def drawObstacle(screen, obstacle, color, width):
+def draw_obstacle(screen, obstacle, color, width):
     """
     Draws an obstacle on the screen.
     Arguments:
@@ -410,7 +405,7 @@ def drawObstacle(screen, obstacle, color, width):
         pygame.draw.line(screen, color, obstacle.vertices[i], lastVertice, width)
 
 
-def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth, toolbarWidth, wasMousePresed):
+def draw_new_obstacle(screen, obstacleList, newObstacle, button, color, lineWidth, toolbarWidth, wasMousePresed):
     """
     Draws a new obstacle on the screen while the user is defining its vertices.
     Arguments:
@@ -443,7 +438,7 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
         pygame.draw.circle(screen, color, newVertice, int(0.4 * lineWidth))
 
         if wasMousePresed:
-            newObstacle.addVertice(newVertice)
+            newObstacle.add_vertice(newVertice)
             
             if newVertice == newObstacle.vertices[0] and len(newObstacle.vertices) > 1:
                 obstacleList.append(copy.deepcopy(newObstacle))
@@ -451,9 +446,9 @@ def drawNewObstacle(screen, obstacleList, newObstacle, button, color, lineWidth,
                 button.reset()
 
         if len(newObstacle.vertices) > 1:
-            drawObstacle(screen, newObstacle, color, lineWidth)
+            draw_obstacle(screen, newObstacle, color, lineWidth)
 
-def wrapAngle(angleRadians):
+def wrap_angle(angleRadians):
     """
     Wraps an angle in radians to the range [0, 2π].
     Arguments:
@@ -484,11 +479,11 @@ def mean_angle(angles):
 
     # Calculate the angle of the resulting vector
     meanAngle = np.atan2(ySum, xSum)
-    meanAngle = wrapAngle(meanAngle)
+    meanAngle = wrap_angle(meanAngle)
 
     return meanAngle
 
-def angleDiff(angle1, angle2):
+def angle_diff(angle1, angle2):
     """
     Calculates the smallest difference between two angles.
     Arguments:
@@ -497,14 +492,14 @@ def angleDiff(angle1, angle2):
     Returns:
         The smallest difference between the two angles in radians.
     """
-    angle1 = wrapAngle(angle1)
-    angle2 = wrapAngle(angle2)
+    angle1 = wrap_angle(angle1)
+    angle2 = wrap_angle(angle2)
     diff   = np.abs(angle1 - angle2)
     #diff = diff % twoPi
     return min(diff, twoPi - diff)
     
 
-def linearRegression(xMin, xMax, yMin, yMax, value):
+def linear_regression(xMin, xMax, yMin, yMax, value):
     """
     Performs linear regression to map a value from one range to another.
     Arguments:
