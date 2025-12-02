@@ -122,8 +122,8 @@ class Robot:
                 heading = wrapAngle(heading)
             else:
                 print('This should not happen')
-                normal2Obs      = 0.0
-                self.heading    = 0.0
+                heading         = self.heading
+                normal2Obs      = heading - (0.5 * np.pi)
                 correctDistance = 0.0
 
             # Propose new position
