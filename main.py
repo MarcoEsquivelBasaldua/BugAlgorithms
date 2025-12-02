@@ -109,7 +109,7 @@ if __name__ == "__main__":
         robot.placeRobot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
 
         # Reset Options
-        if RESET_PLACES_BUTTON.wasPressed or RESET_ALL_BUTTON.wasPressed:
+        if RESET_PLACES_BUTTON.wasButtonPressed() or RESET_ALL_BUTTON.wasButtonPressed():
             robot.reset()
             goal.reset()
             GO_BUTTON.reset()
@@ -120,7 +120,7 @@ if __name__ == "__main__":
             mustFollowObstacle = False
             ###
 
-            if RESET_ALL_BUTTON.wasPressed:
+            if RESET_ALL_BUTTON.wasButtonPressed():
                 obstacles = []
                 BUG1_BUTTON.reset()
                 BUG2_BUTTON.reset()
@@ -128,7 +128,7 @@ if __name__ == "__main__":
                 RESET_ALL_BUTTON.reset()
 
         # Move to goal
-        if GO_BUTTON.wasPressed == True and robot.goalReached == False:
+        if GO_BUTTON.wasButtonPressed() == True and robot.isGoalReached(goal.get_position()) == False:
             # Check collision
             collision, collisionAngles = robot.checkCollision(screen, OBSTACLE_COLOR)
 
@@ -138,21 +138,21 @@ if __name__ == "__main__":
                 mustFollowObstacle = True
 
             if mustFollowObstacle:
-                robot.followObstacleBoundary(screen, goal.pos, collisionAngles)
+                robot.followObstacleBoundary(screen, goal.get_position(), collisionAngles)
             else:
-                robot.moveTowardGoal(screen, goal.pos)
+                robot.moveTowardGoal(screen, goal.get_position())
             ###
 
             # if not robot.collision:
-            #     robot.moveTowardGoal(screen, goal.pos)
+            #     robot.moveTowardGoal(screen, goal.get_position())
             # else:
-            #     robot.followObstacleBoundary(screen, goal.pos, collisionAngles)
+            #     robot.followObstacleBoundary(screen, goal.get_position(), collisionAngles)
 
             robot.drawHistory(screen)
 
             pygame.time.delay(100)
         
-        if robot.goalReached:
+        if robot.isGoalReached(goal.get_position()):
             robot.drawHistory(screen)
 
         wasMousePresed = False

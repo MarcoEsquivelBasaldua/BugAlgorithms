@@ -101,10 +101,10 @@ class Robot:
         Returns:
             None
         """
-        self.__moving = True
-        dist2Goal     = distance(self.pos, goalPos)
+       
+        self.isGoalReached(goalPos)
 
-        if dist2Goal > self.__nearGoalTh:
+        if not self.goalReached:
             collisionAnglesLen = len(collisionAngles)
 
             if collisionAnglesLen > 0:
@@ -164,10 +164,6 @@ class Robot:
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
 
-        else:
-            self.goalReached = True
-            self.__moving    = False
-
 
     def placeRobot(self, screen, button, toolbarWidth, wasMousePresed):
         """
@@ -207,6 +203,25 @@ class Robot:
             newColor   = (alphaColor, alphaColor, 255)
 
             pygame.draw.circle(screen, newColor, pos, self.__radius // 3)
+
+    def isGoalReached(self, goalPos):
+        """
+        Checks if the robot has reached the specified goal position.
+        Arguments:
+            goalPos: A tuple representing the (x, y) coordinates of the goal position.
+        Returns:
+            A boolean indicating whether the goal has been reached.
+        """
+        dist2Goal     = distance(self.pos, goalPos)
+
+        if dist2Goal > self.__nearGoalTh:
+            self.goalReached = False
+            self.__moving    = True
+        else:
+            self.goalReached = True
+            self.__moving    = False
+
+        return self.goalReached
 
     def reset(self):
         """
@@ -330,6 +345,16 @@ class Goal:
         """
         self.pos   = None
         self.exist = False
+
+    def get_position(self):
+        """
+        Returns the position of the goal.
+        Arguments:
+            None
+        Returns:
+            A tuple representing the (x, y) coordinates of the goal's position.
+        """
+        return self.pos
 
     def __draw(self, screen):
         """
