@@ -95,21 +95,21 @@ if __name__ == "__main__":
 
         # Draw obstacles
         for obstacle in obstacles:
-            screenActors.drawObstacle(screen, obstacle, OBSTACLE_COLOR, OBSTACLE_WIDTH)
+            screenActors.draw_obstacle(screen, obstacle, OBSTACLE_COLOR, OBSTACLE_WIDTH)
 
         # Draw new obstacle
-        screenActors.drawNewObstacle(screen, obstacles, newObs,
+        screenActors.draw_new_obstacle(screen, obstacles, newObs,
                                      DRAW_OBSTACLE_BUTTON, OBSTACLE_COLOR,
                                      OBSTACLE_WIDTH, TOOLBAR_WIDTH, wasMousePresed)
 
         # Place Goal
-        goal.placeGoal(screen, PLACE_GOAL_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        goal.place_goal(screen, PLACE_GOAL_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
 
         # Place Robot
-        robot.placeRobot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
 
         # Reset Options
-        if RESET_PLACES_BUTTON.wasPressed or RESET_ALL_BUTTON.wasPressed:
+        if RESET_PLACES_BUTTON.was_button_pressed() or RESET_ALL_BUTTON.was_button_pressed():
             robot.reset()
             goal.reset()
             GO_BUTTON.reset()
@@ -120,7 +120,7 @@ if __name__ == "__main__":
             mustFollowObstacle = False
             ###
 
-            if RESET_ALL_BUTTON.wasPressed:
+            if RESET_ALL_BUTTON.was_button_pressed():
                 obstacles = []
                 BUG1_BUTTON.reset()
                 BUG2_BUTTON.reset()
@@ -128,9 +128,9 @@ if __name__ == "__main__":
                 RESET_ALL_BUTTON.reset()
 
         # Move to goal
-        if GO_BUTTON.wasPressed == True and robot.goalReached == False:
+        if GO_BUTTON.was_button_pressed() == True and robot.is_goal_reached(goal.get_position()) == False:
             # Check collision
-            collision, collisionAngles = robot.checkCollision(screen, OBSTACLE_COLOR)
+            collision, collisionAngles = robot.check_collision(screen, OBSTACLE_COLOR)
 
             ###
             #DEBUG
@@ -138,22 +138,22 @@ if __name__ == "__main__":
                 mustFollowObstacle = True
 
             if mustFollowObstacle:
-                robot.followObstacleBoundary(screen, goal.pos, collisionAngles)
+                robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, OBSTACLE_COLOR)
             else:
-                robot.moveTowardGoal(screen, goal.pos)
+                robot.move_toward_goal(screen, goal.get_position())
             ###
 
             # if not robot.collision:
-            #     robot.moveTowardGoal(screen, goal.pos)
+            #     robot.move_toward_goal(screen, goal.get_position())
             # else:
-            #     robot.followObstacleBoundary(screen, goal.pos, collisionAngles)
+            #     robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, OBSTACLE_COLOR)
 
-            robot.drawHistory(screen)
+            robot.draw_history(screen)
 
             pygame.time.delay(100)
         
         if robot.goalReached:
-            robot.drawHistory(screen)
+            robot.draw_history(screen)
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display
