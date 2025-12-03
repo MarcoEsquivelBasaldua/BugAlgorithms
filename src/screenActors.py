@@ -87,13 +87,14 @@ class Robot:
             self.__posHistory.append(np.array(self.pos, dtype=np.int64))
             self.__draw(screen)
 
-    def follow_obstacle_boundary(self, screen, goalPos, collisionAngles):
+    def follow_obstacle_boundary(self, screen, goalPos, collisionAngles, obstacleColor):
         """
         Moves the robot along the boundary of an obstacle based on collision angles.
         Arguments:
             screen: The pygame surface where the robot will be drawn.
             goalPos: A tuple representing the (x, y) coordinates of the goal position.
             collisionAngles: A list of angles where the robot is in contact with the obstacle.
+            obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
             None
         """
@@ -126,7 +127,7 @@ class Robot:
             pos    = self.pos + newPos
 
             # Check if new position is still in contact to obstacle
-            collision, _ = self.check_collision(screen, (0, 0, 0), True, pos)
+            collision, _ = self.check_collision(screen, obstacleColor, True, pos)
 
             if collision: # Push robot away from obstacle
                 # Get angles difference, map to a distance and pull robot away from obstacle
@@ -138,7 +139,7 @@ class Robot:
                 pos            += deltaXY
 
             # Check if new position is still in contact to obstacle
-            collision, _ = self.check_collision(screen, (0, 0, 0), True, pos)
+            collision, _ = self.check_collision(screen, obstacleColor, True, pos)
 
             if not collision: # Pull robot toward the obstacle
                 steps2Check = 20
@@ -147,7 +148,7 @@ class Robot:
                     newPos    = np.round(newPos).astype(int)
                     pos2Check = pos + newPos
 
-                    coll, _ = self.check_collision(screen, (0,0,0), True, pos2Check)
+                    coll, _ = self.check_collision(screen, obstacleColor, True, pos2Check)
 
                     if coll:
                         pos = pos2Check
@@ -495,7 +496,6 @@ def angle_diff(angle1, angle2):
     angle1 = wrap_angle(angle1)
     angle2 = wrap_angle(angle2)
     diff   = np.abs(angle1 - angle2)
-    #diff = diff % twoPi
     return min(diff, twoPi - diff)
     
 

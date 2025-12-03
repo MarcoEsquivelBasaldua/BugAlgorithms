@@ -138,7 +138,7 @@ if __name__ == "__main__":
                 mustFollowObstacle = True
 
             if mustFollowObstacle:
-                robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles)
+                robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, OBSTACLE_COLOR)
             else:
                 robot.move_toward_goal(screen, goal.get_position())
             ###
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             # if not robot.collision:
             #     robot.move_toward_goal(screen, goal.get_position())
             # else:
-            #     robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles)
+            #     robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, OBSTACLE_COLOR)
 
             robot.draw_history(screen)
 
