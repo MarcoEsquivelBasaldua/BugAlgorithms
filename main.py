@@ -43,6 +43,9 @@ if __name__ == "__main__":
     RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
     GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
 
+    # Visualizers
+    SELECTED_ALG0 = screenTools.Visualizer((200, 0), 30, 200, MESSAGE_COLOR, 'Hello')
+
     # Obstacles list
     OBSTACLE_WIDTH = 20
     newObs = screenActors.Obstacle()
@@ -107,6 +110,9 @@ if __name__ == "__main__":
 
         # Place Robot
         robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+
+        # Select Bug Algorithm
+        SELECTED_ALG0.draw(screen, 'Bug')
 
         # Reset Options
         if RESET_PLACES_BUTTON.was_button_pressed() or RESET_ALL_BUTTON.was_button_pressed():
