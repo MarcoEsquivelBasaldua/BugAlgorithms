@@ -44,7 +44,7 @@ if __name__ == "__main__":
     GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
 
     # Visualizers
-    SELECTED_ALG0 = screenTools.Visualizer((200, 0), 30, 200, MESSAGE_COLOR, 'Hello')
+    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((200, 0), 30, 200, MESSAGE_COLOR)
 
     # Obstacles list
     OBSTACLE_WIDTH = 20
@@ -59,6 +59,9 @@ if __name__ == "__main__":
     goal = screenActors.Goal(GOAL_COLOR)
     
     running = True
+
+    # Selected algorithm variable
+    selectedAlgorithm = ''
 
     ###
     #DEBUG
@@ -112,7 +115,28 @@ if __name__ == "__main__":
         robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
 
         # Select Bug Algorithm
-        SELECTED_ALG0.draw(screen, 'Bug')
+        if BUG1_BUTTON.was_button_pressed():
+            selectedAlgorithm = 'Bug 1'
+
+            BUG2_BUTTON.reset()
+            TANGENT_BUG_BUTTON.reset()
+            BUG1_BUTTON.wasPressed = False
+        
+        elif BUG2_BUTTON.was_button_pressed():
+            selectedAlgorithm = 'Bug 2'
+
+            BUG1_BUTTON.reset()
+            TANGENT_BUG_BUTTON.reset()
+            BUG2_BUTTON.wasPressed = False
+
+        elif TANGENT_BUG_BUTTON.was_button_pressed():
+            selectedAlgorithm = 'Tangent Bug'
+            
+            BUG1_BUTTON.reset()
+            BUG2_BUTTON.reset()
+            TANGENT_BUG_BUTTON.wasPressed = False
+        
+        SELECTED_ALG0_VISUALIZER.draw(screen, selectedAlgorithm)
 
         # Reset Options
         if RESET_PLACES_BUTTON.was_button_pressed() or RESET_ALL_BUTTON.was_button_pressed():
@@ -127,7 +151,8 @@ if __name__ == "__main__":
             ###
 
             if RESET_ALL_BUTTON.was_button_pressed():
-                obstacles = []
+                obstacles         = []
+                selectedAlgorithm = ''
                 BUG1_BUTTON.reset()
                 BUG2_BUTTON.reset()
                 TANGENT_BUG_BUTTON.reset()

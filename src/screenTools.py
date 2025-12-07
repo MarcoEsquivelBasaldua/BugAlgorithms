@@ -75,7 +75,7 @@ class Button:
 
 
 class Visualizer:
-    def __init__(self, pos, fontSize, width, color, messageFixed):
+    def __init__(self, pos, fontSize, width, color):
         """
         Initializes a visualizer with position, font size, width, color, and fixed message.
         Arguments:
@@ -83,12 +83,10 @@ class Visualizer:
             fontSize: The font size for the text.
             width: The width of the visualizer.
             color: The color of the visualizer background.
-            messageFixed: A fixed message string to display.
         Returns:
             None
         """
         self.pos               = pos
-        self.messageFixed      = messageFixed
         self.color             = color
         self.height            = fontSize + 10
         self.width             = width
@@ -101,14 +99,14 @@ class Visualizer:
         Draws the visualizer on the given screen with a variable message.
         Arguments:
             screen: The pygame surface where the visualizer will be drawn.
-            messageVar: A variable message string to display alongside the fixed message.
+            message: A variable message string to display alongside the fixed message.
         Returns:
             None
         """
         rectPosSize = pygame.Rect(self.pos[0], self.pos[1], self.width, self.height)
 
         pygame.draw.rect(screen, self.color, rectPosSize, self.__borderThickness)
-        text_surface = self.__font.render(self.messageFixed + ' ' + messageVar, True, (0, 0, 0)) # Black text
+        text_surface = self.__font.render(messageVar, True, (0, 0, 0)) # Black text
         text_rect    = text_surface.get_rect(center=self.__rect.center)
 
         screen.blit(text_surface, text_rect)
