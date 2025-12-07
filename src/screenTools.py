@@ -86,13 +86,12 @@ class Visualizer:
         Returns:
             None
         """
-        self.pos               = pos
-        self.color             = color
-        self.height            = fontSize + 10
-        self.width             = width
-        self.__rect            = pygame.Rect(pos[0], pos[1], width, self.height)
-        self.__borderThickness = 2
-        self.__font            = pygame.font.SysFont("Arial", fontSize)
+        self.pos    = pos
+        self.color  = color
+        self.height = fontSize + 10
+        self.width  = width
+        self.__rect = pygame.Rect(pos[0], pos[1], width, self.height)
+        self.__font = pygame.font.SysFont("Arial", fontSize)
 
     def draw(self, screen, messageVar):
         """
@@ -103,9 +102,6 @@ class Visualizer:
         Returns:
             None
         """
-        rectPosSize = pygame.Rect(self.pos[0], self.pos[1], self.width, self.height)
-
-        pygame.draw.rect(screen, self.color, rectPosSize, self.__borderThickness)
         text_surface = self.__font.render(messageVar, True, (0, 0, 0)) # Black text
         text_rect    = text_surface.get_rect(center=self.__rect.center)
 
