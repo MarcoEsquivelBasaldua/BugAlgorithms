@@ -43,6 +43,11 @@ if __name__ == "__main__":
     RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
     GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
 
+    # Visualizers
+    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((200, 0), 30, 200, MESSAGE_COLOR)
+    POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR)
+    GOAL_REACHED_VISUALIZER  = screenTools.Visualizer((1130, 0), 25, 270, MESSAGE_COLOR)
+
     # Obstacles list
     OBSTACLE_WIDTH = 20
     newObs = screenActors.Obstacle()
@@ -56,6 +61,9 @@ if __name__ == "__main__":
     goal = screenActors.Goal(GOAL_COLOR)
     
     running = True
+
+    # Selected algorithm variable
+    selectedAlgorithm = ''
 
     ###
     #DEBUG
@@ -108,6 +116,30 @@ if __name__ == "__main__":
         # Place Robot
         robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
 
+        # Select Bug Algorithm
+        if BUG1_BUTTON.was_button_pressed():
+            selectedAlgorithm = 'Bug 1'
+
+            BUG2_BUTTON.reset()
+            TANGENT_BUG_BUTTON.reset()
+            BUG1_BUTTON.wasPressed = False
+        
+        elif BUG2_BUTTON.was_button_pressed():
+            selectedAlgorithm = 'Bug 2'
+
+            BUG1_BUTTON.reset()
+            TANGENT_BUG_BUTTON.reset()
+            BUG2_BUTTON.wasPressed = False
+
+        elif TANGENT_BUG_BUTTON.was_button_pressed():
+            selectedAlgorithm = 'Tangent Bug'
+            
+            BUG1_BUTTON.reset()
+            BUG2_BUTTON.reset()
+            TANGENT_BUG_BUTTON.wasPressed = False
+        
+        SELECTED_ALG0_VISUALIZER.draw(screen, selectedAlgorithm)
+
         # Reset Options
         if RESET_PLACES_BUTTON.was_button_pressed() or RESET_ALL_BUTTON.was_button_pressed():
             robot.reset()
@@ -121,7 +153,8 @@ if __name__ == "__main__":
             ###
 
             if RESET_ALL_BUTTON.was_button_pressed():
-                obstacles = []
+                obstacles         = []
+                selectedAlgorithm = ''
                 BUG1_BUTTON.reset()
                 BUG2_BUTTON.reset()
                 TANGENT_BUG_BUTTON.reset()
@@ -129,6 +162,12 @@ if __name__ == "__main__":
 
         # Move to goal
         if GO_BUTTON.was_button_pressed() == True and robot.is_goal_reached(goal.get_position()) == False:
+
+            # Visualizers
+            POSITIONS_VISUALIZER.draw(screen, 'Robot position (' + str(robot.pos[0]) + ', ' + str(robot.pos[1]) +'), '+\
+                                        'Goal position(' + str(goal.pos[0]) + ', ' + str(goal.pos[1]) +')')
+            GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
+            
             # Check collision
             collision, collisionAngles = robot.check_collision(screen, OBSTACLE_COLOR)
 
