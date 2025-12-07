@@ -46,6 +46,7 @@ if __name__ == "__main__":
     # Visualizers
     SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((200, 0), 30, 200, MESSAGE_COLOR)
     POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR)
+    GOAL_REACHED_VISUALIZER  = screenTools.Visualizer((1130, 0), 25, 270, MESSAGE_COLOR)
 
     # Obstacles list
     OBSTACLE_WIDTH = 20
@@ -161,8 +162,12 @@ if __name__ == "__main__":
 
         # Move to goal
         if GO_BUTTON.was_button_pressed() == True and robot.is_goal_reached(goal.get_position()) == False:
+
+            # Visualizers
             POSITIONS_VISUALIZER.draw(screen, 'Robot position (' + str(robot.pos[0]) + ', ' + str(robot.pos[1]) +'), '+\
                                         'Goal position(' + str(goal.pos[0]) + ', ' + str(goal.pos[1]) +')')
+            GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
+            
             # Check collision
             collision, collisionAngles = robot.check_collision(screen, OBSTACLE_COLOR)
 
