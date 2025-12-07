@@ -375,13 +375,9 @@ def distance(x1, x2):
     Returns:
         The Euclidean distance between the two points.
     """
-    delta1 = x1[0] - x2[0]
-    delta2 = x1[1] - x2[1]
-    delta1 = delta1 ** 2
-    delta2 = delta2 ** 2
-    sum_ = delta1 + delta2
-
-    return np.sqrt(sum_)
+    dist = np.linalg.norm(x1 - x2)
+    
+    return dist
 
 def draw_obstacle(screen, obstacle, color, width):
     """
