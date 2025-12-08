@@ -370,11 +370,16 @@ def distance(x1, x2):
     """
     Calculates the Euclidean distance between two points.
     Arguments:
-        x1: A tuple representing the (x, y) coordinates of the first point.
-        x2: A tuple representing the (x, y) coordinates of the second point.
+        x1: A tuple or array representing the (x, y) coordinates of the first point.
+        x2: A tuple or array representing the (x, y) coordinates of the second point.
     Returns:
         The Euclidean distance between the two points.
     """
+    if isinstance(x1, tuple):
+        x1 = np.array(x1).astype(int)
+    if isinstance(x2, tuple):
+        x2 = np.array(x2).astype(int)
+
     dist = np.linalg.norm(x1 - x2)
     
     return dist
