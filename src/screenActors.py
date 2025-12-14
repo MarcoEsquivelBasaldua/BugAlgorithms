@@ -57,6 +57,8 @@ class Robot:
         self.__color       = color
         self.__rangeSensor = max(self.__step, rangeSensor)
         self.__rangeSensor += (self.__radius)
+        self.hitPoints     = []
+        self.minHitPoints  = 30
 
         # Collision check flag
         samples            = 12
@@ -76,6 +78,10 @@ class Robot:
         self.is_goal_reached(goalPos)
 
         if not self.goalReached:
+            # Reset hit points list
+            self.hitPoints = []
+
+            # Get new robot position
             dist2GoalXY = goalPos - self.pos
             heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
             heading     = wrap_angle(heading)
@@ -101,8 +107,10 @@ class Robot:
         self.is_goal_reached(goalPos)
 
         if not self.goalReached:
-            collisionAnglesLen = len(collisionAngles)
+            # Save hit point
+            self.hitPoints.append((self.pos, distance(self.pos, goalPos)))
 
+            collisionAnglesLen = len(collisionAngles)
             if collisionAnglesLen > 0:
 
                 if collisionAnglesLen == 2:
@@ -233,6 +241,7 @@ class Robot:
         self.heading      = 0.0
         self.__moving     = False 
         self.__posHistory = []
+        self.hitPoints    = []
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
         """
