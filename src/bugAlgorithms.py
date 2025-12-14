@@ -6,27 +6,26 @@ from screenActors import distance as dist
 def bug1(screen, obstacleColor, robot, goal):
     goalReached = robot.is_goal_reached(goal.get_position())
 
-    # Check collision
-    collision, collisionAngles = robot.check_collision(screen, obstacleColor)
+    if not goalReached:
+        # Check collision
+        collision, collisionAngles = robot.check_collision(screen, obstacleColor)
 
-    if collision:
-        mustFollowObstacle = True
-        #print(dist(robot.pos, goal.pos), robot.minDist2Goal)
-        #print(robot.hitPoints[-1][0], robot.hitPoints[0][0])
-        if len(robot.hitPoints) > robot.minHitPoints:
-            if dist(robot.hitPoints[-1][0], robot.hitPoints[0][0]) < 3.0:
-                robot.obsEncircled = True
-        
-        if robot.obsEncircled:
-            if dist(robot.pos, goal.pos) <= robot.minDist2Goal:
-                mustFollowObstacle = False
+        if collision:
+            mustFollowObstacle = True
+            if len(robot.hitPoints) > robot.minHitPoints:
+                if dist(robot.hitPoints[-1][0], robot.hitPoints[0][0]) < 3.0:
+                    robot.obsEncircled = True
+            
+            if robot.obsEncircled:
+                if dist(robot.pos, goal.pos) <= (robot.minDist2Goal + 1):
+                    mustFollowObstacle = False
 
-        if mustFollowObstacle:
-            robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)
+            if mustFollowObstacle:
+                robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)
+            else:
+                robot.move_toward_goal(screen, goal.get_position())
         else:
             robot.move_toward_goal(screen, goal.get_position())
-    else:
-        robot.move_toward_goal(screen, goal.get_position())
 
     return goalReached
 
