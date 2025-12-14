@@ -1,19 +1,38 @@
 import numpy as np
+import sys
+sys.path.insert(1, './src')
+from screenActors import distance as dist
 
-def bug1(start, goal, obstacles):
-    """
-    Implements the Bug1 algorithm for robot path planning.
-    
-    Parameters:
-    start (tuple): Starting coordinates (x, y).
-    goal (tuple): Goal coordinates (x, y).
-    obstacles (list): List of obstacle coordinates [(x1, y1), (x2, y2), ...].
-    
-    Returns:
-    list: Path from start to goal as a list of coordinates.
-    """
+def bug1(screen, obstacleColor, robot, goal):
+    goalReached = robot.is_goal_reached(goal.get_position())
+
+    # Check collision
+    collision, collisionAngles = robot.check_collision(screen, obstacleColor)
+
+    if collision:
+        mustFollowObstacle = True
+        #print(dist(robot.pos, goal.pos), robot.minDist2Goal)
+        #print(robot.hitPoints[-1][0], robot.hitPoints[0][0])
+        if len(robot.hitPoints) > robot.minHitPoints:
+            if dist(robot.hitPoints[-1][0], robot.hitPoints[0][0]) < 3.0:
+                robot.obsEncircled = True
+        
+        if robot.obsEncircled:
+            if dist(robot.pos, goal.pos) <= robot.minDist2Goal:
+                mustFollowObstacle = False
+
+        if mustFollowObstacle:
+            robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)
+        else:
+            robot.move_toward_goal(screen, goal.get_position())
+    else:
+        robot.move_toward_goal(screen, goal.get_position())
+
+    return goalReached
 
 def bug2(start, goal, obstacles):
+    pass
 
 def tangentBug(start, goal, obstacles):
+    pass
     
