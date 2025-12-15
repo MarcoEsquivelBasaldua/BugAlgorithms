@@ -45,22 +45,23 @@ class Robot:
             rangeSensor: An integer representing the range of the robot's sensor (default is 0).
         Returns:
             None"""
-        self.pos           = None
-        self.exist         = False
-        self.goalReached   = False
-        self.heading       = 0.0
-        self.__step        = 3
-        self.__nearGoalTh  = 5
-        self.__moving      = False
-        self.__posHistory  = []
-        self.__radius      = 10
-        self.__color       = color
-        self.__rangeSensor = max(self.__step, rangeSensor)
-        self.__rangeSensor += (self.__radius)
-        self.hitPoints     = []
-        self.minHitPoints  = 38
-        self.minDist2Goal  = np.inf
-        self.obsEncircled  = False
+        self.pos              = None
+        self.exist            = False
+        self.goalReached      = False
+        self.goalCanBeReached = True
+        self.heading          = 0.0
+        self.__step           = 3
+        self.__nearGoalTh     = 5
+        self.__moving         = False
+        self.__posHistory     = []
+        self.__radius         = 10
+        self.__color          = color
+        self.__rangeSensor    = max(self.__step, rangeSensor)
+        self.__rangeSensor   += (self.__radius)
+        self.hitPoints        = []
+        self.minHitPoints     = 38
+        self.minDist2Goal     = np.inf
+        self.obsEncircled     = False
 
         # Collision check flag
         samples            = 12
@@ -68,7 +69,7 @@ class Robot:
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
 
-    def move_toward_goal(self, screen, goalPos):
+    def move_toward_goal(self, screen, goalPos, obstacleColor):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
@@ -87,12 +88,16 @@ class Robot:
         heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
         heading     = wrap_angle(heading)
         
-        newPos = self.__move_oneStep(heading)
-
+        newPos    = self.__move_oneStep(heading)
         self.pos += newPos
 
+        # Check collision on new proposed position
+        collision, _ = self.check_collision(screen, obstacleColor, True, self.pos)
+
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
-        self.__draw(screen)
+        self.draw(screen)
+
+        return collision
 
     def follow_obstacle_boundary(self, screen, goalPos, collisionAngles, obstacleColor):
         """
@@ -168,7 +173,7 @@ class Robot:
 
         # Save robot position into history
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
-        self.__draw(screen)
+        self.draw(screen)
 
 
     def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
@@ -191,7 +196,7 @@ class Robot:
                 self.exist = True
                 button.reset()
         if not self.__moving:
-            self.__draw(screen)
+            self.draw(screen)
 
     def draw_history(self, screen):
         """
@@ -218,7 +223,7 @@ class Robot:
         Returns:
             A boolean indicating whether the goal has been reached.
         """
-        dist2Goal     = distance(self.pos, goalPos)
+        dist2Goal = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
             self.goalReached = False
@@ -237,15 +242,16 @@ class Robot:
         Returns:
             None
         """
-        self.pos          = None
-        self.exist        = False
-        self.goalReached  = False
-        self.heading      = 0.0
-        self.__moving     = False
-        self.minDist2Goal = np.inf
-        self.__posHistory = []
-        self.hitPoints    = []
-        self.obsEncircled = False
+        self.pos              = None
+        self.exist            = False
+        self.goalReached      = False
+        self.goalCanBeReached = True
+        self.heading          = 0.0
+        self.__moving         = False
+        self.minDist2Goal     = np.inf
+        self.__posHistory     = []
+        self.hitPoints        = []
+        self.obsEncircled     = False
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
         """
@@ -281,7 +287,7 @@ class Robot:
         return collision, firstAndLastContact
 
 
-    def __draw(self, screen):
+    def draw(self, screen):
         """
         Draws the robot on the screen if it exists.
         Arguments:

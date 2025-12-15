@@ -4,9 +4,10 @@ sys.path.insert(1, './src')
 from screenActors import distance as dist
 
 def bug1(screen, obstacleColor, robot, goal):
-    goalReached = robot.is_goal_reached(goal.get_position())
+    goalReached      = robot.is_goal_reached(goal.get_position())
+    goalCanBeReached = robot.goalCanBeReached
 
-    if not goalReached:
+    if not goalReached and goalCanBeReached:
         # Check collision
         collision, collisionAngles = robot.check_collision(screen, obstacleColor)
 
@@ -24,11 +25,12 @@ def bug1(screen, obstacleColor, robot, goal):
             if mustFollowObstacle:
                 robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)
             else:
-                robot.move_toward_goal(screen, goal.get_position())
+                goalCanBeReached       = not(robot.move_toward_goal(screen, goal.get_position(), obstacleColor))
+                robot.goalCanBeReached = goalCanBeReached
         else:
-            robot.move_toward_goal(screen, goal.get_position())
+            _ = robot.move_toward_goal(screen, goal.get_position(), obstacleColor)
 
-    return goalReached
+    return goalReached, goalCanBeReached
 
 def bug2(start, goal, obstacles):
     pass

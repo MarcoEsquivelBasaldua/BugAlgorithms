@@ -146,11 +146,6 @@ if __name__ == "__main__":
             GO_BUTTON.reset()
             RESET_PLACES_BUTTON.reset()
 
-            ###
-            #DEBUG
-            mustFollowObstacle = False
-            ###
-
             if RESET_ALL_BUTTON.was_button_pressed():
                 obstacles         = []
                 selectedAlgorithm = ''
@@ -161,7 +156,8 @@ if __name__ == "__main__":
 
         # Move to goal
         if GO_BUTTON.was_button_pressed():
-            goalReached = False
+            goalReached      = False
+            goalCanBeReached = True
 
             if selectedAlgorithm == '':
                 SELECTED_ALG0_VISUALIZER.draw(screen, 'Select Algorithm')
@@ -171,13 +167,7 @@ if __name__ == "__main__":
                                         'Goal position(' + str(goal.pos[0]) + ', ' + str(goal.pos[1]) +')')
                 
                 if selectedAlgorithm == 'Bug 1':
-                    goalReached = bugAlgorithms.bug1(screen, OBSTACLE_COLOR, robot, goal)
-
-                    
-
-                # Visualizers
-            
-                #GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
+                    goalReached, goalCanBeReached = bugAlgorithms.bug1(screen, OBSTACLE_COLOR, robot, goal)
 
                 robot.draw_history(screen)
 
@@ -186,6 +176,11 @@ if __name__ == "__main__":
             if goalReached:
                 GOAL_REACHED_VISUALIZER.draw(screen, 'Goal reached !!!')
                 robot.draw_history(screen)
+                robot.draw(screen)
+            elif not goalCanBeReached:
+                GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
+                robot.draw_history(screen)
+                robot.draw(screen)
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display
