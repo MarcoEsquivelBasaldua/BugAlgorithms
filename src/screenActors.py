@@ -76,7 +76,7 @@ class Robot:
             screen: The pygame surface where the robot will be drawn.
             goalPos: A tuple representing the (x, y) coordinates of the goal position.
         Returns:
-            None
+            A flag telling if the robot is in collision or not
         """
         # Reset hit points list
         self.hitPoints    = []

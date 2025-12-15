@@ -154,7 +154,7 @@ if __name__ == "__main__":
                 TANGENT_BUG_BUTTON.reset()
                 RESET_ALL_BUTTON.reset()
 
-        # Move to goal
+        # Apply selected options
         if GO_BUTTON.was_button_pressed():
             goalReached      = False
             goalCanBeReached = True
@@ -173,18 +173,17 @@ if __name__ == "__main__":
 
                 pygame.time.delay(100)
             
-            if goalReached:
-                GOAL_REACHED_VISUALIZER.draw(screen, 'Goal reached !!!')
+            if goalReached or (not goalCanBeReached):
                 robot.draw_history(screen)
                 robot.draw(screen)
-            elif not goalCanBeReached:
-                GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
-                robot.draw_history(screen)
-                robot.draw(screen)
+
+                if goalReached:
+                    GOAL_REACHED_VISUALIZER.draw(screen, 'Goal reached !!!')
+                elif not goalCanBeReached:
+                    GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display
         
-
 
     pygame.quit()
