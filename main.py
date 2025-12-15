@@ -171,7 +171,7 @@ if __name__ == "__main__":
 
                 robot.draw_history(screen)
 
-                pygame.time.delay(100)
+                pygame.time.delay(50)
             
             if goalReached or (not goalCanBeReached):
                 robot.draw_history(screen)
