@@ -3,6 +3,7 @@ import sys
 sys.path.insert(1, './src')
 import screenTools
 import screenActors
+import bugAlgorithms
 
 if __name__ == "__main__":
     pygame.init()
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
 
     # Visualizers
-    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((200, 0), 30, 200, MESSAGE_COLOR)
+    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0), 30, 200, MESSAGE_COLOR)
     POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR)
     GOAL_REACHED_VISUALIZER  = screenTools.Visualizer((1130, 0), 25, 270, MESSAGE_COLOR)
 
@@ -59,16 +60,11 @@ if __name__ == "__main__":
 
     # Goal
     goal = screenActors.Goal(GOAL_COLOR)
-    
-    running = True
 
     # Selected algorithm variable
     selectedAlgorithm = ''
 
-    ###
-    #DEBUG
-    mustFollowObstacle = False
-    ###
+    running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -122,6 +118,7 @@ if __name__ == "__main__":
 
             BUG2_BUTTON.reset()
             TANGENT_BUG_BUTTON.reset()
+            GO_BUTTON.reset()
             BUG1_BUTTON.wasPressed = False
         
         elif BUG2_BUTTON.was_button_pressed():
@@ -129,6 +126,7 @@ if __name__ == "__main__":
 
             BUG1_BUTTON.reset()
             TANGENT_BUG_BUTTON.reset()
+            GO_BUTTON.reset()
             BUG2_BUTTON.wasPressed = False
 
         elif TANGENT_BUG_BUTTON.was_button_pressed():
@@ -136,6 +134,7 @@ if __name__ == "__main__":
             
             BUG1_BUTTON.reset()
             BUG2_BUTTON.reset()
+            GO_BUTTON.reset()
             TANGENT_BUG_BUTTON.wasPressed = False
         
         SELECTED_ALG0_VISUALIZER.draw(screen, selectedAlgorithm)
@@ -147,11 +146,6 @@ if __name__ == "__main__":
             GO_BUTTON.reset()
             RESET_PLACES_BUTTON.reset()
 
-            ###
-            #DEBUG
-            mustFollowObstacle = False
-            ###
-
             if RESET_ALL_BUTTON.was_button_pressed():
                 obstacles         = []
                 selectedAlgorithm = ''
@@ -160,43 +154,36 @@ if __name__ == "__main__":
                 TANGENT_BUG_BUTTON.reset()
                 RESET_ALL_BUTTON.reset()
 
-        # Move to goal
-        if GO_BUTTON.was_button_pressed() == True and robot.is_goal_reached(goal.get_position()) == False:
+        # Apply selected options
+        if GO_BUTTON.was_button_pressed():
+            goalReached      = False
+            goalCanBeReached = True
 
-            # Visualizers
-            POSITIONS_VISUALIZER.draw(screen, 'Robot position (' + str(robot.pos[0]) + ', ' + str(robot.pos[1]) +'), '+\
-                                        'Goal position(' + str(goal.pos[0]) + ', ' + str(goal.pos[1]) +')')
-            GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
-            
-            # Check collision
-            collision, collisionAngles = robot.check_collision(screen, OBSTACLE_COLOR)
+            if selectedAlgorithm == '':
+                SELECTED_ALG0_VISUALIZER.draw(screen, 'Select Algorithm')
 
-            ###
-            #DEBUG
-            if collision:
-                mustFollowObstacle = True
-
-            if mustFollowObstacle:
-                robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, OBSTACLE_COLOR)
             else:
-                robot.move_toward_goal(screen, goal.get_position())
-            ###
+                POSITIONS_VISUALIZER.draw(screen, 'Robot position (' + str(robot.pos[0]) + ', ' + str(robot.pos[1]) +'), '+\
+                                        'Goal position(' + str(goal.pos[0]) + ', ' + str(goal.pos[1]) +')')
+                
+                if selectedAlgorithm == 'Bug 1':
+                    goalReached, goalCanBeReached = bugAlgorithms.bug1(screen, OBSTACLE_COLOR, robot, goal)
 
-            # if not robot.collision:
-            #     robot.move_toward_goal(screen, goal.get_position())
-            # else:
-            #     robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, OBSTACLE_COLOR)
+                robot.draw_history(screen)
 
-            robot.draw_history(screen)
+                pygame.time.delay(50)
+            
+            if goalReached or (not goalCanBeReached):
+                robot.draw_history(screen)
+                robot.draw(screen)
 
-            pygame.time.delay(100)
-        
-        if robot.goalReached:
-            robot.draw_history(screen)
+                if goalReached:
+                    GOAL_REACHED_VISUALIZER.draw(screen, 'Goal reached !!!')
+                elif not goalCanBeReached:
+                    GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display
         
-
 
     pygame.quit()

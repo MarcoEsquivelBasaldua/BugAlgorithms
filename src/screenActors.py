@@ -45,18 +45,23 @@ class Robot:
             rangeSensor: An integer representing the range of the robot's sensor (default is 0).
         Returns:
             None"""
-        self.pos           = None
-        self.exist         = False
-        self.goalReached   = False
-        self.heading       = 0.0
-        self.__step        = 3
-        self.__nearGoalTh  = 5
-        self.__moving      = False
-        self.__posHistory  = []
-        self.__radius      = 10
-        self.__color       = color
-        self.__rangeSensor = max(self.__step, rangeSensor)
-        self.__rangeSensor += (self.__radius)
+        self.pos              = None
+        self.exist            = False
+        self.goalReached      = False
+        self.goalCanBeReached = True
+        self.heading          = 0.0
+        self.__step           = 3
+        self.__nearGoalTh     = 5
+        self.__moving         = False
+        self.__posHistory     = []
+        self.__radius         = 10
+        self.__color          = color
+        self.__rangeSensor    = max(self.__step, rangeSensor)
+        self.__rangeSensor   += (self.__radius)
+        self.hitPoints        = []
+        self.minHitPoints     = 38
+        self.minDist2Goal     = np.inf
+        self.obsEncircled     = False
 
         # Collision check flag
         samples            = 12
@@ -64,28 +69,35 @@ class Robot:
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
 
-    def move_toward_goal(self, screen, goalPos):
+    def move_toward_goal(self, screen, goalPos, obstacleColor):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
             screen: The pygame surface where the robot will be drawn.
             goalPos: A tuple representing the (x, y) coordinates of the goal position.
         Returns:
-            None
+            A flag telling if the robot is in collision or not
         """
-        self.is_goal_reached(goalPos)
+        # Reset hit points list
+        self.hitPoints    = []
+        self.minDist2Goal = np.inf
+        self.obsEncircled = False
 
-        if not self.goalReached:
-            dist2GoalXY = goalPos - self.pos
-            heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            heading     = wrap_angle(heading)
-            
-            newPos = self.__move_oneStep(heading)
+        # Get new robot position
+        dist2GoalXY = goalPos - self.pos
+        heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+        heading     = wrap_angle(heading)
+        
+        newPos    = self.__move_oneStep(heading)
+        self.pos += newPos
 
-            self.pos += newPos
+        # Check collision on new proposed position
+        collision, _ = self.check_collision(screen, obstacleColor, True, self.pos)
 
-            self.__posHistory.append(np.array(self.pos, dtype=np.int64))
-            self.__draw(screen)
+        self.__posHistory.append(np.array(self.pos, dtype=np.int64))
+        self.draw(screen)
+
+        return collision
 
     def follow_obstacle_boundary(self, screen, goalPos, collisionAngles, obstacleColor):
         """
@@ -98,67 +110,70 @@ class Robot:
         Returns:
             None
         """
-        self.is_goal_reached(goalPos)
+        # Save hit point
+        dist2Goal         = distance(self.pos, goalPos)
+        self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
 
-        if not self.goalReached:
-            collisionAnglesLen = len(collisionAngles)
+        self.hitPoints.append((self.pos, dist2Goal))
 
-            if collisionAnglesLen > 0:
+        collisionAnglesLen = len(collisionAngles)
+        if collisionAnglesLen > 0:
 
-                if collisionAnglesLen == 2:
-                    normal2Obs = mean_angle(collisionAngles)
-                    anglesDiff = angle_diff(collisionAngles[0], collisionAngles[1])
-                else:
-                    normal2Obs = collisionAngles[0]
-                    anglesDiff = 0.0
-
-                normal2Obs = wrap_angle(normal2Obs)
-
-                heading = normal2Obs + (0.5 * np.pi)
-                heading = wrap_angle(heading)
+            if collisionAnglesLen == 2:
+                normal2Obs = mean_angle(collisionAngles)
+                anglesDiff = angle_diff(collisionAngles[0], collisionAngles[1])
             else:
-                print('This should not happen')
-                heading         = self.heading
-                normal2Obs      = heading - (0.5 * np.pi)
-                correctDistance = 0.0
+                normal2Obs = collisionAngles[0]
+                anglesDiff = 0.0
 
-            # Propose new position
-            newPos = self.__move_oneStep(heading)
-            pos    = self.pos + newPos
+            normal2Obs = wrap_angle(normal2Obs)
 
-            # Check if new position is still in contact to obstacle
-            collision, _ = self.check_collision(screen, obstacleColor, True, pos)
+            heading = normal2Obs + (0.5 * np.pi)
+            heading = wrap_angle(heading)
+        else:
+            print('This should not happen')
+            heading         = self.heading
+            normal2Obs      = heading - (0.5 * np.pi)
+            correctDistance = 0.0
 
-            if collision: # Push robot away from obstacle
-                # Get angles difference, map to a distance and pull robot away from obstacle
-                correctDistance = linear_regression(0.0, np.pi, 0.0, 5, anglesDiff)
-                normalFromObs   = normal2Obs + np.pi
-                normalFromObs   = wrap_angle(normalFromObs)
-                deltaXY         = correctDistance * np.array((np.cos(normalFromObs), np.sin(normalFromObs)))
-                deltaXY         = np.round(deltaXY).astype(int)
-                pos            += deltaXY
+        # Propose new position
+        newPos = self.__move_oneStep(heading)
+        pos    = self.pos + newPos
 
-            # Check if new position is still in contact to obstacle
-            collision, _ = self.check_collision(screen, obstacleColor, True, pos)
+        # Check if new position is still in contact to obstacle
+        collision, _ = self.check_collision(screen, obstacleColor, True, pos)
 
-            if not collision: # Pull robot toward the obstacle
-                steps2Check = 20
-                for step in range(1,steps2Check+1):
-                    newPos    = step * np.array((np.cos(normal2Obs), np.sin(normal2Obs))).astype(float)
-                    newPos    = np.round(newPos).astype(int)
-                    pos2Check = pos + newPos
+        if collision: # Push robot away from obstacle
+            # Get angles difference, map to a distance and pull robot away from obstacle
+            correctDistance = linear_regression(0.0, np.pi, 0.0, 5, anglesDiff)
+            normalFromObs   = normal2Obs + np.pi
+            normalFromObs   = wrap_angle(normalFromObs)
+            deltaXY         = correctDistance * np.array((np.cos(normalFromObs), np.sin(normalFromObs)))
+            deltaXY         = np.round(deltaXY).astype(int)
+            pos            += deltaXY
 
-                    coll, _ = self.check_collision(screen, obstacleColor, True, pos2Check)
+        # Check if new position is still in contact to obstacle
+        collision, _ = self.check_collision(screen, obstacleColor, True, pos)
 
-                    if coll:
-                        pos = pos2Check
-                        break
+        if not collision: # Pull robot toward the obstacle
+            steps2Check = 20
+            for step in range(1,steps2Check+1):
+                newPos    = step * np.array((np.cos(normal2Obs), np.sin(normal2Obs))).astype(float)
+                newPos    = np.round(newPos).astype(int)
+                pos2Check = pos + newPos
 
-            # Update robotPos
-            self.pos = pos
+                coll, _ = self.check_collision(screen, obstacleColor, True, pos2Check)
 
-            self.__posHistory.append(np.array(self.pos, dtype=np.int64))
-            self.__draw(screen)
+                if coll:
+                    pos = pos2Check
+                    break
+
+        # Update robotPos
+        self.pos = pos
+
+        # Save robot position into history
+        self.__posHistory.append(np.array(self.pos, dtype=np.int64))
+        self.draw(screen)
 
 
     def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
@@ -181,7 +196,7 @@ class Robot:
                 self.exist = True
                 button.reset()
         if not self.__moving:
-            self.__draw(screen)
+            self.draw(screen)
 
     def draw_history(self, screen):
         """
@@ -208,7 +223,7 @@ class Robot:
         Returns:
             A boolean indicating whether the goal has been reached.
         """
-        dist2Goal     = distance(self.pos, goalPos)
+        dist2Goal = distance(self.pos, goalPos)
 
         if dist2Goal > self.__nearGoalTh:
             self.goalReached = False
@@ -227,12 +242,16 @@ class Robot:
         Returns:
             None
         """
-        self.pos          = None
-        self.exist        = False
-        self.goalReached  = False
-        self.heading      = 0.0
-        self.__moving     = False 
-        self.__posHistory = []
+        self.pos              = None
+        self.exist            = False
+        self.goalReached      = False
+        self.goalCanBeReached = True
+        self.heading          = 0.0
+        self.__moving         = False
+        self.minDist2Goal     = np.inf
+        self.__posHistory     = []
+        self.hitPoints        = []
+        self.obsEncircled     = False
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
         """
@@ -268,7 +287,7 @@ class Robot:
         return collision, firstAndLastContact
 
 
-    def __draw(self, screen):
+    def draw(self, screen):
         """
         Draws the robot on the screen if it exists.
         Arguments:
@@ -370,18 +389,19 @@ def distance(x1, x2):
     """
     Calculates the Euclidean distance between two points.
     Arguments:
-        x1: A tuple representing the (x, y) coordinates of the first point.
-        x2: A tuple representing the (x, y) coordinates of the second point.
+        x1: A tuple or array representing the (x, y) coordinates of the first point.
+        x2: A tuple or array representing the (x, y) coordinates of the second point.
     Returns:
         The Euclidean distance between the two points.
     """
-    delta1 = x1[0] - x2[0]
-    delta2 = x1[1] - x2[1]
-    delta1 = delta1 ** 2
-    delta2 = delta2 ** 2
-    sum_ = delta1 + delta2
+    if isinstance(x1, tuple):
+        x1 = np.array(x1).astype(int)
+    if isinstance(x2, tuple):
+        x2 = np.array(x2).astype(int)
 
-    return np.sqrt(sum_)
+    dist = np.linalg.norm(x1 - x2)
+    
+    return dist
 
 def draw_obstacle(screen, obstacle, color, width):
     """
