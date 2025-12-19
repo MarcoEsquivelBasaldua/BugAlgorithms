@@ -58,16 +58,19 @@ class Robot:
         self.__color          = color
         self.__rangeSensor    = max(self.__step, rangeSensor)
         self.__rangeSensor   += (self.__radius)
-        self.hitPoints        = []
-        self.minHitPoints     = 38
-        self.minDist2Goal     = np.inf
-        self.obsEncircled     = False
 
         # Collision check flag
         samples            = 12
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
+
+        # Bug 1 specific variables
+        self.bug1Active   = False
+        self.hitPoints    = []
+        self.minHitPoints = 38
+        self.obsEncircled = False
+        self.minDist2Goal = np.inf
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
         """
@@ -78,10 +81,11 @@ class Robot:
         Returns:
             A flag telling if the robot is in collision or not
         """
-        # Reset hit points list
-        self.hitPoints    = []
-        self.minDist2Goal = np.inf
-        self.obsEncircled = False
+        if self.bug1Active:
+            # Reset hit points list
+            self.hitPoints    = []
+            self.minDist2Goal = np.inf
+            self.obsEncircled = False
 
         # Get new robot position
         dist2GoalXY = goalPos - self.pos
@@ -110,11 +114,11 @@ class Robot:
         Returns:
             None
         """
-        # Save hit point
-        dist2Goal         = distance(self.pos, goalPos)
-        self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
-
-        self.hitPoints.append((self.pos, dist2Goal))
+        if self.bug1Active:
+            # Save hit point
+            dist2Goal         = distance(self.pos, goalPos)
+            self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
+            self.hitPoints.append((self.pos, dist2Goal))
 
         collisionAnglesLen = len(collisionAngles)
         if collisionAnglesLen > 0:
@@ -252,6 +256,7 @@ class Robot:
         self.__posHistory     = []
         self.hitPoints        = []
         self.obsEncircled     = False
+        self.bug1Active       = False
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
         """
