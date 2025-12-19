@@ -71,9 +71,11 @@ def bug2(screen, obstacleColor, robot, goal):
                 goalCanBeReached       = False
                 robot.goalCanBeReached = goalCanBeReached
             else:
-                if wrap_angle(robot.heading - robot.mLineHeading) < headingTh:
-                    if dist(robot.pos, goal.pos) < robot.dist2goalAtHitPoint:
-                        mustFollowObstacle = False
+                if np.abs(wrap_angle(robot.heading - robot.mLineHeading)) < headingTh:
+                    if len(robot.hitPoints) > 3:
+                        if dist(robot.pos, robot.hitPoints[0][0]) < 3.0:
+                            if dist(robot.pos, goal.pos) < robot.dist2goalAtHitPoint:
+                                mustFollowObstacle = False
 
             if mustFollowObstacle:
                 robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)
