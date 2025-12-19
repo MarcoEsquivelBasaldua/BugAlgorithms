@@ -2,6 +2,7 @@ import numpy as np
 import sys
 sys.path.insert(1, './src')
 from screenActors import distance as dist
+from screenActors import wrap_angle
 
 def bug1(screen, obstacleColor, robot, goal):
     """
@@ -16,6 +17,8 @@ def bug1(screen, obstacleColor, robot, goal):
         goalCanBeReached: A boolean indicating if the goal can be reached.
     """
     robot.bug1Active = True
+    robot.bug2Active = False
+
     goalReached      = robot.is_goal_reached(goal.get_position())
     goalCanBeReached = robot.goalCanBeReached
 
@@ -45,7 +48,42 @@ def bug1(screen, obstacleColor, robot, goal):
     return goalReached, goalCanBeReached
 
 def bug2(screen, obstacleColor, robot, goal):
-    pass
+    robot.bug1Active = False
+    robot.bug2Active = True
+
+    headingTh = 0.1
+
+    goalReached      = robot.is_goal_reached(goal.get_position())
+    goalCanBeReached = robot.goalCanBeReached
+
+    if not goalReached and goalCanBeReached:
+        # Check collision
+        collision, collisionAngles = robot.check_collision(screen, obstacleColor)
+
+        if collision:
+            mustFollowObstacle = True
+            # Check if obstacle has been encircled
+            if len(robot.hitPoints) > robot.minHitPoints:
+                if dist(robot.hitPoints[-1][0], robot.hitPoints[0][0]) < 3.0:
+                    robot.obsEncircled = True
+
+            if robot.obsEncircled:
+                goalCanBeReached       = False
+                robot.goalCanBeReached = goalCanBeReached
+            else:
+                if wrap_angle(robot.heading - robot.mLineHeading) < headingTh:
+                    if dist(robot.pos, goal.pos) < robot.dist2goalAtHitPoint:
+                        mustFollowObstacle = False
+
+            if mustFollowObstacle:
+                robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)
+        else:
+            _ = robot.move_toward_goal(screen, goal.get_position(), obstacleColor)
+
+    return goalReached, goalCanBeReached
+
+
+
 
 def tangentBug(screen, obstacleColor, robot, goal):
     pass

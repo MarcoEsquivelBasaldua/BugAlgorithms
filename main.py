@@ -169,6 +169,9 @@ if __name__ == "__main__":
                 if selectedAlgorithm == 'Bug 1':
                     goalReached, goalCanBeReached = bugAlgorithms.bug1(screen, OBSTACLE_COLOR, robot, goal)
 
+                if selectedAlgorithm == 'Bug 2':
+                    goalReached, goalCanBeReached = bugAlgorithms.bug2(screen, OBSTACLE_COLOR, robot, goal)
+
                 robot.draw_history(screen)
 
                 pygame.time.delay(50)
