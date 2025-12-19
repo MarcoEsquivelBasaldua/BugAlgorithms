@@ -93,6 +93,9 @@ class Robot:
             self.hitPoints    = []
             self.minDist2Goal = np.inf
             self.obsEncircled = False
+        elif self.bug2Active:
+            self.hitObstacle         = False
+            self.dist2goalAtHitPoint = np.inf
 
         # Get new robot position
         dist2GoalXY = goalPos - self.pos
@@ -107,6 +110,9 @@ class Robot:
 
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
         self.draw(screen)
+
+        if self.bug2Active:
+            self.mLineHeading = heading
 
         return collision
 
@@ -126,6 +132,10 @@ class Robot:
             dist2Goal         = distance(self.pos, goalPos)
             self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
             self.hitPoints.append((self.pos, dist2Goal))
+        elif self.bug2Active:
+            if not self.hitObstacle:
+                self.hitObstacle         = True
+                self.dist2goalAtHitPoint = distance(self.pos, goalPos)
 
         collisionAnglesLen = len(collisionAngles)
         if collisionAnglesLen > 0:
