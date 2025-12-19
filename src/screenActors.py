@@ -58,6 +58,9 @@ class Robot:
         self.__color          = color
         self.__rangeSensor    = max(self.__step, rangeSensor)
         self.__rangeSensor   += (self.__radius)
+        self.hitPoints        = []
+        self.minHitPoints     = 38
+        self.obsEncircled     = False
 
         # Collision check flag
         samples            = 12
@@ -67,15 +70,14 @@ class Robot:
 
         # Bug 1 specific variables
         self.bug1Active   = False
-        self.hitPoints    = []
-        self.minHitPoints = 38
-        self.obsEncircled = False
         self.minDist2Goal = np.inf
 
         # Bug 2 specific variables
         self.bug2Active          = False
+        self.hitpoint            = None
         self.mLineHeading        = 0.0
         self.hitObstacle         = False
+        self.prevDist2Goal       = np.inf
         self.dist2goalAtHitPoint = np.inf
         
 
@@ -88,11 +90,13 @@ class Robot:
         Returns:
             A flag telling if the robot is in collision or not
         """
+        # Reset hit points list
+        self.hitPoints    = []
+        self.obsEncircled = False
+        
         if self.bug1Active:
-            # Reset hit points list
-            self.hitPoints    = []
+            
             self.minDist2Goal = np.inf
-            self.obsEncircled = False
         elif self.bug2Active:
             self.hitObstacle         = False
             self.dist2goalAtHitPoint = np.inf
@@ -127,14 +131,16 @@ class Robot:
         Returns:
             None
         """
+        # Save hit point
+        dist2Goal = distance(self.pos, goalPos)
+        self.hitPoints.append((self.pos, dist2Goal))
+
         if self.bug1Active:
-            # Save hit point
-            dist2Goal         = distance(self.pos, goalPos)
             self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
-            self.hitPoints.append((self.pos, dist2Goal))
         elif self.bug2Active:
             if not self.hitObstacle:
                 self.hitObstacle         = True
+                self.hitpoint            = self.pos
                 self.dist2goalAtHitPoint = distance(self.pos, goalPos)
 
         collisionAnglesLen = len(collisionAngles)
@@ -270,18 +276,19 @@ class Robot:
         self.heading          = 0.0
         self.__moving         = False
         self.__posHistory     = []
+        self.hitPoints        = []
+        self.obsEncircled     = False
 
         # Bug 1 specific variables
         self.bug1Active   = False
         self.minDist2Goal = np.inf
-        self.hitPoints    = []
-        self.obsEncircled = False
 
         # Bug 2 specific variables
         self.bug2Active          = False
         self.mLineHeading        = 0.0
         self.hitObstacle         = False
         self.dist2goalAtHitPoint = np.inf
+        self.prevDist2Goal       = np.inf
         
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
