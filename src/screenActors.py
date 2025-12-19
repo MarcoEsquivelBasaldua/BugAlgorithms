@@ -72,6 +72,13 @@ class Robot:
         self.obsEncircled = False
         self.minDist2Goal = np.inf
 
+        # Bug 2 specific variables
+        self.bug2Active          = False
+        self.mLineHeading        = 0.0
+        self.hitObstacle         = False
+        self.dist2goalAtHitPoint = np.inf
+        
+
     def move_toward_goal(self, screen, goalPos, obstacleColor):
         """
         Moves the robot toward the specified goal position in a straight line.
@@ -252,11 +259,20 @@ class Robot:
         self.goalCanBeReached = True
         self.heading          = 0.0
         self.__moving         = False
-        self.minDist2Goal     = np.inf
         self.__posHistory     = []
-        self.hitPoints        = []
-        self.obsEncircled     = False
-        self.bug1Active       = False
+
+        # Bug 1 specific variables
+        self.bug1Active   = False
+        self.minDist2Goal = np.inf
+        self.hitPoints    = []
+        self.obsEncircled = False
+
+        # Bug 2 specific variables
+        self.bug2Active          = False
+        self.mLineHeading        = 0.0
+        self.hitObstacle         = False
+        self.dist2goalAtHitPoint = np.inf
+        
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
         """
