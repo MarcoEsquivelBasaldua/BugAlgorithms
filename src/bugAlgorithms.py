@@ -48,6 +48,17 @@ def bug1(screen, obstacleColor, robot, goal):
     return goalReached, goalCanBeReached
 
 def bug2(screen, obstacleColor, robot, goal):
+    """
+    Implements the Bug 2 algorithm for robot navigation.
+    Args:
+        screen: The pygame surface where the robot will be drawn.
+        obstacleColor: The color used to represent obstacles on the screen.
+        robot: The robot object that will navigate the environment.
+        goal: The goal object representing the target position.
+    Returns:
+        goalReached: A boolean indicating if the robot has reached the goal.
+        goalCanBeReached: A boolean indicating if the goal can be reached.
+    """
     robot.bug1Active = False
     robot.bug2Active = True
 
