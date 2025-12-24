@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 
 class Button:
     def __init__(self, x, y, width, height, text, color, pressedColor, wasPressed=False):
@@ -108,5 +109,36 @@ class Visualizer:
         screen.blit(text_surface, text_rect)
 
 
-#class SlideBar:
-    
+class SlideBar:
+    def __init__(self, pos, width, height, color, pressedColor,):
+        self.range = 0
+        self.pos = pos
+        self.width = width
+        self.height = height
+        self.color = color
+        self.pressedColor = pressedColor
+        self.__sliderPos = pos[0]
+        self.__maxRange = 100
+        self.__rect = pygame.Rect(pos[0], pos[1], width, self.height)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.__rect)
+
+        # Selector position
+        pos = np.array((self.__sliderPos, self.pos[1] + self.height//2)).astype(int)
+        pygame.draw.circle(screen, self.pressedColor, pos, self.height//2 + 2)
+
+    def handle_event(self, event):
+        if self.__rect.collidepoint(event.pos):
+            self.__sliderPos = event.pos[0]
+
+            r = event.pos[0] - self.pos[0]
+
+            if r < 1:
+                self.range = 0
+            else:
+                ratio = r / self.width
+                self.range = np.round(ratio * self.__maxRange).astype(int)
+
+            print(self.range)
+            #print(ratio)

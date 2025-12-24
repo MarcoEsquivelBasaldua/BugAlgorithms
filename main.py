@@ -44,6 +44,9 @@ if __name__ == "__main__":
     RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
     GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
 
+    # Silder
+    SLIDER_RANGE = screenTools.SlideBar((16, 550), 168, 18, BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+
     # Visualizers
     SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0), 30, 200, MESSAGE_COLOR)
     POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR)
@@ -82,6 +85,9 @@ if __name__ == "__main__":
                 RESET_PLACES_BUTTON.handle_event(event)
                 RESET_ALL_BUTTON.handle_event(event)
 
+            elif event.type == pygame.MOUSEMOTION:
+                SLIDER_RANGE.handle_event(event)
+
         screen.fill(SCREEN_COLOR)  # Fill the screen with white
         toolsBar = pygame.Rect(0, 0, TOOLBAR_WIDTH, ENV_HEIGHT)
         pygame.draw.rect(screen, TOOLBAR_COLOR, toolsBar, width=0)
@@ -96,6 +102,8 @@ if __name__ == "__main__":
         GO_BUTTON.draw(screen)
         RESET_PLACES_BUTTON.draw(screen)
         RESET_ALL_BUTTON.draw(screen)
+
+        SLIDER_RANGE.draw(screen)
 
         # Draw obstacles
         for obstacle in obstacles:
