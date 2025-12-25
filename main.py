@@ -48,9 +48,10 @@ if __name__ == "__main__":
     SLIDER_RANGE = screenTools.SlideBar((16, 550), 168, 18, BUTTON_COLOR, BUTTON_PRESSED_COLOR)
 
     # Visualizers
-    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0), 30, 200, MESSAGE_COLOR)
+    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0),  30, 200, MESSAGE_COLOR)
     POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR)
     GOAL_REACHED_VISUALIZER  = screenTools.Visualizer((1130, 0), 25, 270, MESSAGE_COLOR)
+    SLIDER_RANGE_VISUALIZER  = screenTools.Visualizer((100, 580),17,  50, MESSAGE_COLOR)
 
     # Obstacles list
     OBSTACLE_WIDTH = 20
@@ -104,6 +105,7 @@ if __name__ == "__main__":
         RESET_ALL_BUTTON.draw(screen)
 
         SLIDER_RANGE.draw(screen)
+        SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
 
         # Draw obstacles
         for obstacle in obstacles:
@@ -162,7 +164,7 @@ if __name__ == "__main__":
                 TANGENT_BUG_BUTTON.reset()
                 RESET_ALL_BUTTON.reset()
 
-        # Apply selected options
+        # Start simulation
         if GO_BUTTON.was_button_pressed():
             goalReached      = False
             goalCanBeReached = True
@@ -179,6 +181,9 @@ if __name__ == "__main__":
 
                 if selectedAlgorithm == 'Bug 2':
                     goalReached, goalCanBeReached = bugAlgorithms.bug2(screen, OBSTACLE_COLOR, robot, goal)
+                
+                #if selectedAlgorithm == 'Tangent Bug':
+                    #SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
 
                 robot.draw_history(screen)
 

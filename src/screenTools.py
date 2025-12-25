@@ -103,7 +103,7 @@ class Visualizer:
         Returns:
             None
         """
-        text_surface = self.__font.render(messageVar, True, (0, 0, 0)) # Black text
+        text_surface = self.__font.render(messageVar, True, self.color)
         text_rect    = text_surface.get_rect(center=self.__rect.center)
 
         screen.blit(text_surface, text_rect)
@@ -139,6 +139,3 @@ class SlideBar:
             else:
                 ratio = r / self.width
                 self.range = np.round(ratio * self.__maxRange).astype(int)
-
-            print(self.range)
-            #print(ratio)
