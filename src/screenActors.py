@@ -37,7 +37,7 @@ class Obstacle:
 
 
 class Robot:
-    def __init__(self, color, rangeSensor = 0):
+    def __init__(self, color):
         """
         Initializes a robot with a position, existence flag, position history, radius, color, and range sensor.
         Arguments:
@@ -56,8 +56,7 @@ class Robot:
         self.__posHistory     = []
         self.__radius         = 10
         self.__color          = color
-        self.__rangeSensor    = max(self.__step, rangeSensor)
-        self.__rangeSensor   += (self.__radius)
+        self.__rangeSensor    = 0
 
         # Collision check flag
         samples            = 12
@@ -81,6 +80,9 @@ class Robot:
         self.hitObstacle         = False
         self.prevDist2Goal       = np.inf
         self.dist2goalAtHitPoint = np.inf
+
+        # Tangent Bug specific variables
+        self.TBugActive = False
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
@@ -294,6 +296,18 @@ class Robot:
         self.hitObstacle         = False
         self.dist2goalAtHitPoint = np.inf
         self.prevDist2Goal       = np.inf
+
+    def updateRangeSensor(self, rangeSensor):
+        """
+        Updates the range sensor distance of the robot.
+        Arguments:
+            rangeSensor: An integer representing the new range sensor distance.
+        Returns:
+            None
+        """
+        self.__rangeSensor    = max(self.__step, rangeSensor)
+        self.__rangeSensor   += (self.__radius)
+
         
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
@@ -306,6 +320,11 @@ class Robot:
             A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
         """
+        if self.bug1Active or self.bug2Active:
+            rangeSensor = self.__step + self.__radius
+        elif self.TBugActive:
+            rangeSensor = self.__rangeSensor
+
         collision           = False
         firstAndLastContact = []
 
@@ -316,7 +335,7 @@ class Robot:
 
         for angle in self.__checkAngles:
             checkPos  = np.array((np.cos(angle), np.sin(angle)))
-            checkPos *= self.__rangeSensor
+            checkPos *= rangeSensor
             checkPos  =  np.round(checkPos).astype(np.int64)
             checkPos += usePos
 
@@ -340,6 +359,10 @@ class Robot:
         """
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+
+            if self.TBugActive:
+                pygame.draw.circle(screen, self.__color, self.pos, self.__rangeSensor, width=1)
+
 
     def __move_oneStep(self, heading):
         """

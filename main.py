@@ -44,10 +44,14 @@ if __name__ == "__main__":
     RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
     GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
 
+    # Silder
+    SLIDER_RANGE = screenTools.SlideBar((16, 550), 168, 18, BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+
     # Visualizers
-    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0), 30, 200, MESSAGE_COLOR)
+    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0),  30, 200, MESSAGE_COLOR)
     POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR)
     GOAL_REACHED_VISUALIZER  = screenTools.Visualizer((1130, 0), 25, 270, MESSAGE_COLOR)
+    SLIDER_RANGE_VISUALIZER  = screenTools.Visualizer((100, 580),17,  50, MESSAGE_COLOR)
 
     # Obstacles list
     OBSTACLE_WIDTH = 20
@@ -82,6 +86,9 @@ if __name__ == "__main__":
                 RESET_PLACES_BUTTON.handle_event(event)
                 RESET_ALL_BUTTON.handle_event(event)
 
+            elif event.type == pygame.MOUSEMOTION:
+                SLIDER_RANGE.handle_event(event)
+
         screen.fill(SCREEN_COLOR)  # Fill the screen with white
         toolsBar = pygame.Rect(0, 0, TOOLBAR_WIDTH, ENV_HEIGHT)
         pygame.draw.rect(screen, TOOLBAR_COLOR, toolsBar, width=0)
@@ -97,6 +104,9 @@ if __name__ == "__main__":
         RESET_PLACES_BUTTON.draw(screen)
         RESET_ALL_BUTTON.draw(screen)
 
+        SLIDER_RANGE.draw(screen)
+        SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
+
         # Draw obstacles
         for obstacle in obstacles:
             screenActors.draw_obstacle(screen, obstacle, OBSTACLE_COLOR, OBSTACLE_WIDTH)
@@ -111,10 +121,15 @@ if __name__ == "__main__":
 
         # Place Robot
         robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        robot.updateRangeSensor(SLIDER_RANGE.range)
 
         # Select Bug Algorithm
         if BUG1_BUTTON.was_button_pressed():
             selectedAlgorithm = 'Bug 1'
+
+            robot.bug1Active = True
+            robot.bug2Active = False
+            robot.TBugActive = False
 
             BUG2_BUTTON.reset()
             TANGENT_BUG_BUTTON.reset()
@@ -124,6 +139,10 @@ if __name__ == "__main__":
         elif BUG2_BUTTON.was_button_pressed():
             selectedAlgorithm = 'Bug 2'
 
+            robot.bug1Active = False
+            robot.bug2Active = True
+            robot.TBugActive = False
+
             BUG1_BUTTON.reset()
             TANGENT_BUG_BUTTON.reset()
             GO_BUTTON.reset()
@@ -131,6 +150,10 @@ if __name__ == "__main__":
 
         elif TANGENT_BUG_BUTTON.was_button_pressed():
             selectedAlgorithm = 'Tangent Bug'
+
+            robot.bug1Active = False
+            robot.bug2Active = False
+            robot.TBugActive = True
             
             BUG1_BUTTON.reset()
             BUG2_BUTTON.reset()
@@ -154,7 +177,7 @@ if __name__ == "__main__":
                 TANGENT_BUG_BUTTON.reset()
                 RESET_ALL_BUTTON.reset()
 
-        # Apply selected options
+        # Start simulation
         if GO_BUTTON.was_button_pressed():
             goalReached      = False
             goalCanBeReached = True
@@ -171,6 +194,10 @@ if __name__ == "__main__":
 
                 if selectedAlgorithm == 'Bug 2':
                     goalReached, goalCanBeReached = bugAlgorithms.bug2(screen, OBSTACLE_COLOR, robot, goal)
+                
+                if selectedAlgorithm == 'Tangent Bug':
+                    pass
+                    #SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
 
                 robot.draw_history(screen)
 
