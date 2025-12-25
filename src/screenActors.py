@@ -298,6 +298,13 @@ class Robot:
         self.prevDist2Goal       = np.inf
 
     def updateRangeSensor(self, rangeSensor):
+        """
+        Updates the range sensor distance of the robot.
+        Arguments:
+            rangeSensor: An integer representing the new range sensor distance.
+        Returns:
+            None
+        """
         self.__rangeSensor    = max(self.__step, rangeSensor)
         self.__rangeSensor   += (self.__radius)
 

@@ -111,6 +111,17 @@ class Visualizer:
 
 class SlideBar:
     def __init__(self, pos, width, height, color, pressedColor,):
+        """
+        Initializes a slide bar with position, size, colors, and range.
+        Arguments:
+            pos: A tuple (x, y) representing the position of the slide bar.
+            width: The width of the slide bar.
+            height: The height of the slide bar.
+            color: The normal color of the slide bar.
+            pressedColor: The color of the slide bar when pressed.
+        Returns:
+            None
+        """
         self.range = 0
         self.pos = pos
         self.width = width
@@ -122,6 +133,13 @@ class SlideBar:
         self.__rect = pygame.Rect(pos[0], pos[1], width, self.height)
 
     def draw(self, screen):
+        """
+        Draws the slide bar on the given screen.
+        Arguments:
+            screen: The pygame surface where the slide bar will be drawn.
+        Returns:
+            None
+        """
         pygame.draw.rect(screen, self.color, self.__rect)
 
         # Selector position
@@ -129,6 +147,13 @@ class SlideBar:
         pygame.draw.circle(screen, self.pressedColor, pos, self.height//2 + 2)
 
     def handle_event(self, event):
+        """
+        Handles mouse events to update the slide bar's position and range.
+        Arguments:
+            event: The pygame event to handle.
+        Returns:
+            None
+        """
         if self.__rect.collidepoint(event.pos):
             self.__sliderPos = event.pos[0]
 
