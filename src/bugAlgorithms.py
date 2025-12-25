@@ -16,9 +16,6 @@ def bug1(screen, obstacleColor, robot, goal):
         goalReached: A boolean indicating if the robot has reached the goal.
         goalCanBeReached: A boolean indicating if the goal can be reached.
     """
-    robot.bug1Active = True
-    robot.bug2Active = False
-
     goalReached      = robot.is_goal_reached(goal.get_position())
     goalCanBeReached = robot.goalCanBeReached
 
@@ -59,9 +56,6 @@ def bug2(screen, obstacleColor, robot, goal):
         goalReached: A boolean indicating if the robot has reached the goal.
         goalCanBeReached: A boolean indicating if the goal can be reached.
     """
-    robot.bug1Active = False
-    robot.bug2Active = True
-
     headingTh = 0.08
 
     goalReached      = robot.is_goal_reached(goal.get_position())

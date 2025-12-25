@@ -127,6 +127,10 @@ if __name__ == "__main__":
         if BUG1_BUTTON.was_button_pressed():
             selectedAlgorithm = 'Bug 1'
 
+            robot.bug1Active = True
+            robot.bug2Active = False
+            robot.TBugActive = False
+
             BUG2_BUTTON.reset()
             TANGENT_BUG_BUTTON.reset()
             GO_BUTTON.reset()
@@ -135,6 +139,10 @@ if __name__ == "__main__":
         elif BUG2_BUTTON.was_button_pressed():
             selectedAlgorithm = 'Bug 2'
 
+            robot.bug1Active = False
+            robot.bug2Active = True
+            robot.TBugActive = False
+
             BUG1_BUTTON.reset()
             TANGENT_BUG_BUTTON.reset()
             GO_BUTTON.reset()
@@ -142,6 +150,10 @@ if __name__ == "__main__":
 
         elif TANGENT_BUG_BUTTON.was_button_pressed():
             selectedAlgorithm = 'Tangent Bug'
+
+            robot.bug1Active = False
+            robot.bug2Active = False
+            robot.TBugActive = True
             
             BUG1_BUTTON.reset()
             BUG2_BUTTON.reset()

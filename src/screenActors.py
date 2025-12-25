@@ -82,7 +82,7 @@ class Robot:
         self.dist2goalAtHitPoint = np.inf
 
         # Tangent Bug specific variables
-        self.TBugActive = True
+        self.TBugActive = False
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
