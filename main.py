@@ -121,6 +121,7 @@ if __name__ == "__main__":
 
         # Place Robot
         robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        robot.updateRangeSensor(SLIDER_RANGE.range)
 
         # Select Bug Algorithm
         if BUG1_BUTTON.was_button_pressed():
@@ -182,7 +183,8 @@ if __name__ == "__main__":
                 if selectedAlgorithm == 'Bug 2':
                     goalReached, goalCanBeReached = bugAlgorithms.bug2(screen, OBSTACLE_COLOR, robot, goal)
                 
-                #if selectedAlgorithm == 'Tangent Bug':
+                if selectedAlgorithm == 'Tangent Bug':
+                    pass
                     #SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
 
                 robot.draw_history(screen)

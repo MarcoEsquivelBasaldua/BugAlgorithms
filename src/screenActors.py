@@ -37,7 +37,7 @@ class Obstacle:
 
 
 class Robot:
-    def __init__(self, color, rangeSensor = 0):
+    def __init__(self, color):
         """
         Initializes a robot with a position, existence flag, position history, radius, color, and range sensor.
         Arguments:
@@ -56,8 +56,7 @@ class Robot:
         self.__posHistory     = []
         self.__radius         = 10
         self.__color          = color
-        self.__rangeSensor    = max(self.__step, rangeSensor)
-        self.__rangeSensor   += (self.__radius)
+        self.__rangeSensor    = 0
 
         # Collision check flag
         samples            = 12
@@ -83,7 +82,7 @@ class Robot:
         self.dist2goalAtHitPoint = np.inf
 
         # Tangent Bug specific variables
-        self.TBugActive = False
+        self.TBugActive = True
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
@@ -297,6 +296,11 @@ class Robot:
         self.hitObstacle         = False
         self.dist2goalAtHitPoint = np.inf
         self.prevDist2Goal       = np.inf
+
+    def updateRangeSensor(self, rangeSensor):
+        self.__rangeSensor    = max(self.__step, rangeSensor)
+        self.__rangeSensor   += (self.__radius)
+
         
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
@@ -348,6 +352,10 @@ class Robot:
         """
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+
+            if self.TBugActive:
+                pygame.draw.circle(screen, self.__color, self.pos, self.__rangeSensor, width=1)
+
 
     def __move_oneStep(self, heading):
         """
