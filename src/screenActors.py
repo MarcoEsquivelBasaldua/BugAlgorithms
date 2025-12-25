@@ -81,6 +81,9 @@ class Robot:
         self.hitObstacle         = False
         self.prevDist2Goal       = np.inf
         self.dist2goalAtHitPoint = np.inf
+
+        # Tangent Bug specific variables
+        self.TBugActive = False
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
@@ -306,6 +309,11 @@ class Robot:
             A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
         """
+        if self.bug1Active or self.bug2Active:
+            rangeSensor = self.__step + self.__radius
+        elif self.TBugActive:
+            rangeSensor = self.__rangeSensor
+
         collision           = False
         firstAndLastContact = []
 
@@ -316,7 +324,7 @@ class Robot:
 
         for angle in self.__checkAngles:
             checkPos  = np.array((np.cos(angle), np.sin(angle)))
-            checkPos *= self.__rangeSensor
+            checkPos *= rangeSensor
             checkPos  =  np.round(checkPos).astype(np.int64)
             checkPos += usePos
 
