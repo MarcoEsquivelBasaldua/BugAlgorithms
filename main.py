@@ -107,6 +107,10 @@ if __name__ == "__main__":
         SLIDER_RANGE.draw(screen)
         SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
 
+        # Place Robot
+        robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        robot.updateRangeSensor(SLIDER_RANGE.range)
+
         # Draw obstacles
         for obstacle in obstacles:
             screenActors.draw_obstacle(screen, obstacle, OBSTACLE_COLOR, OBSTACLE_WIDTH)
@@ -118,10 +122,6 @@ if __name__ == "__main__":
 
         # Place Goal
         goal.place_goal(screen, PLACE_GOAL_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
-
-        # Place Robot
-        robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
-        robot.updateRangeSensor(SLIDER_RANGE.range)
 
         # Select Bug Algorithm
         if BUG1_BUTTON.was_button_pressed():

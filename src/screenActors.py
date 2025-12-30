@@ -56,7 +56,6 @@ class Robot:
         self.__posHistory     = []
         self.__radius         = 10
         self.__color          = color
-        self.__rangeSensor    = 0
 
         # Collision check flag
         samples            = 12
@@ -83,6 +82,12 @@ class Robot:
 
         # Tangent Bug specific variables
         self.TBugActive = False
+        #self.discontinuityPoints = []
+        samples            = 120
+        angleRes           = twoPi / samples
+        checkAngles        = np.array(list(range(samples))).astype(np.float64)
+        self.__theta       = angleRes * checkAngles
+        self.__rangeSensor = 0
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
@@ -297,6 +302,10 @@ class Robot:
         self.dist2goalAtHitPoint = np.inf
         self.prevDist2Goal       = np.inf
 
+        # Tangent Bug specific variables
+        self.TBugActive = False
+        self.descontinuityPoints = []
+
     def updateRangeSensor(self, rangeSensor):
         """
         Updates the range sensor distance of the robot.
@@ -320,10 +329,7 @@ class Robot:
             A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
         """
-        if self.bug1Active or self.bug2Active:
-            rangeSensor = self.__step + self.__radius
-        elif self.TBugActive:
-            rangeSensor = self.__rangeSensor
+        rangeSensor = self.__step + self.__radius
 
         collision           = False
         firstAndLastContact = []
@@ -347,6 +353,50 @@ class Robot:
                     firstAndLastContact[1] = angle
 
         return collision, firstAndLastContact
+    
+
+    def discontinuities(self, screen, obstacleColor):
+        discPoints = []
+
+        # Define steps along each theta angle
+        samples    = 25
+        stepRes    = self.__rangeSensor / samples
+        checkSteps = np.array(list(range(samples))).astype(np.float64)
+        steps      = stepRes * checkSteps
+
+        # Check if first theta is facing obstacle
+        theta = self.__theta[0]
+
+        wasObstacle = False
+        for step in steps:
+            checkPos  = np.array((np.cos(theta), np.sin(theta)))
+            checkPos *= step
+            checkPos  =  np.round(checkPos).astype(np.int64)
+            checkPos += self.pos
+
+            if screen.get_at(checkPos) == obstacleColor:
+                wasObstacle = True
+
+        nOfSteps = len(steps)
+        for theta in self.__theta[1:]:
+            for i, step in enumerate(steps):
+                checkPos  = np.array((np.cos(theta), np.sin(theta)))
+                checkPos *= step
+                checkPos  =  np.round(checkPos).astype(np.int64)
+                checkPos += self.pos
+
+                if screen.get_at(checkPos) == obstacleColor:
+                    if not wasObstacle:
+                        discPoints.append(theta)
+                        wasObstacle = True
+                    break
+                if i == (nOfSteps-1):
+                    if (screen.get_at(checkPos) != obstacleColor) and (wasObstacle):
+                        discPoints.append(theta)
+                        wasObstacle = False
+        
+        return discPoints
+
 
 
     def draw(self, screen):
