@@ -386,6 +386,13 @@ class Robot:
             checkPos  += self.pos
             prevRadius = distance(self.pos, checkPos)
 
+            if checkPos[0] < 200 or checkPos[1] < 0:
+                prevPos = checkPos + np.array((1, 1)).astype(int)
+                break
+            if checkPos[0] >= screen.get_width() or checkPos[1] >= screen.get_height():
+                prevPos = checkPos - np.array((2, 2)).astype(int)
+                break
+
             if screen.get_at(checkPos) == obstacleColor:
                 wasObstacle = True
                 prevPos     = checkPos
@@ -402,10 +409,17 @@ class Robot:
                 checkPos += self.pos
                 radius    = distance(self.pos, checkPos)
 
+                if checkPos[0] < 200 or checkPos[1] < 0:
+                    prevPos = checkPos + np.array((1, 1)).astype(int)
+                    break
+                if checkPos[0] >= screen.get_width() or checkPos[1] >= screen.get_height():
+                    prevPos = checkPos - np.array((2, 2)).astype(int)
+                    break
+
                 if screen.get_at(checkPos) == obstacleColor:
                     if not wasObstacle:
                         discPoints.append([checkPos, theta])
-                    elif np.abs(prevRadius - radius) > 20:
+                    elif np.abs(prevRadius - radius) > 23:
                         discPoints.append([prevPos, prevTheta])
                         discPoints.append([checkPos, theta])
 
