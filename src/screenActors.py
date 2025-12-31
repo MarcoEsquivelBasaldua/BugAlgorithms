@@ -373,16 +373,18 @@ class Robot:
         steps      = stepRes * checkSteps
 
         # Check if first theta is facing obstacle
-        theta     = self.__theta[0]
-        prevTheta = theta
-        prevPos   = None
+        theta      = self.__theta[0]
+        prevTheta  = theta
+        prevPos    = None
+        prevRadius = None
 
         wasObstacle = False
         for step in steps:
-            checkPos  = np.array((np.cos(theta), np.sin(theta)))
-            checkPos *= step
-            checkPos  =  np.round(checkPos).astype(np.int64)
-            checkPos += self.pos
+            checkPos   = np.array((np.cos(theta), np.sin(theta)))
+            checkPos  *= step
+            checkPos   =  np.round(checkPos).astype(np.int64)
+            checkPos  += self.pos
+            prevRadius = distance(self.pos, checkPos)
 
             if screen.get_at(checkPos) == obstacleColor:
                 wasObstacle = True
@@ -398,14 +400,19 @@ class Robot:
                 checkPos *= step
                 checkPos  =  np.round(checkPos).astype(np.int64)
                 checkPos += self.pos
+                radius    = distance(self.pos, checkPos)
 
                 if screen.get_at(checkPos) == obstacleColor:
                     if not wasObstacle:
                         discPoints.append([checkPos, theta])
-                        wasObstacle = True
+                    elif np.abs(prevRadius - radius) > 20:
+                        discPoints.append([prevPos, prevTheta])
+                        discPoints.append([checkPos, theta])
 
+                    wasObstacle = True
                     prevPos   = checkPos
                     prevTheta = theta
+                    prevRadius = radius
                     break
                 if i == (nOfSteps-1):
                     if (screen.get_at(checkPos) != obstacleColor) and (wasObstacle):
@@ -413,6 +420,7 @@ class Robot:
                         wasObstacle = False
                     prevPos   = checkPos
                     prevTheta = theta
+            prevRadius = radius
 
         self.discontinuityPoints = discPoints
         return discPoints
