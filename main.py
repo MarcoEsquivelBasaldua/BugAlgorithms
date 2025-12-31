@@ -24,6 +24,7 @@ if __name__ == "__main__":
     PATH_COLOR           = (153, 255, 255)  # Light blue
     MESSAGE_COLOR        = (0, 0, 0)        # Black
     WARNING_COLOR        = (255, 0, 0)      # Red
+    DISCONT_POINT_COLOR  = (0, 204, 0)      # Light green
 
     screen = pygame.display.set_mode((ENV_WIDTH, ENV_HEIGHT))
     pygame.display.set_caption("Bug Algorithms")
@@ -109,7 +110,7 @@ if __name__ == "__main__":
 
         # Place Robot
         robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
-        robot.updateRangeSensor(SLIDER_RANGE.range)
+        robot.update_range_sensor(SLIDER_RANGE.range)
 
         # Draw obstacles
         for obstacle in obstacles:
@@ -196,8 +197,10 @@ if __name__ == "__main__":
                     goalReached, goalCanBeReached = bugAlgorithms.bug2(screen, OBSTACLE_COLOR, robot, goal)
                 
                 if selectedAlgorithm == 'Tangent Bug':
-                    pass
-                    #SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
+                    # Print discontinuities for debuging
+                    discPoints = robot.get_discontinuities(screen, OBSTACLE_COLOR)
+
+                    robot.draw_discontinuity_points(screen, DISCONT_POINT_COLOR)
 
                 robot.draw_history(screen)
 

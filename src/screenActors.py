@@ -82,7 +82,7 @@ class Robot:
 
         # Tangent Bug specific variables
         self.TBugActive = False
-        #self.discontinuityPoints = []
+        self.discontinuityPoints = []
         samples            = 120
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
@@ -306,7 +306,7 @@ class Robot:
         self.TBugActive = False
         self.descontinuityPoints = []
 
-    def updateRangeSensor(self, rangeSensor):
+    def update_range_sensor(self, rangeSensor):
         """
         Updates the range sensor distance of the robot.
         Arguments:
@@ -355,7 +355,15 @@ class Robot:
         return collision, firstAndLastContact
     
 
-    def discontinuities(self, screen, obstacleColor):
+    def get_discontinuities(self, screen, obstacleColor):
+        """
+        Gets the discontinuity points detected by the robot's range sensor.
+        Arguments:
+            screen: The pygame surface where the robot is drawn.
+            obstacleColor: A tuple representing the RGB color of the obstacles.
+        Returns:
+            A list of discontinuity points detected by the robot's range sensor.
+        """
         discPoints = []
 
         # Define steps along each theta angle
@@ -365,7 +373,9 @@ class Robot:
         steps      = stepRes * checkSteps
 
         # Check if first theta is facing obstacle
-        theta = self.__theta[0]
+        theta     = self.__theta[0]
+        prevTheta = theta
+        prevPos   = None
 
         wasObstacle = False
         for step in steps:
@@ -376,6 +386,10 @@ class Robot:
 
             if screen.get_at(checkPos) == obstacleColor:
                 wasObstacle = True
+                prevPos     = checkPos
+                break
+
+            prevPos = checkPos
 
         nOfSteps = len(steps)
         for theta in self.__theta[1:]:
@@ -387,16 +401,33 @@ class Robot:
 
                 if screen.get_at(checkPos) == obstacleColor:
                     if not wasObstacle:
-                        discPoints.append(theta)
+                        discPoints.append([checkPos, theta])
                         wasObstacle = True
+
+                    prevPos   = checkPos
+                    prevTheta = theta
                     break
                 if i == (nOfSteps-1):
                     if (screen.get_at(checkPos) != obstacleColor) and (wasObstacle):
-                        discPoints.append(theta)
+                        discPoints.append([prevPos, prevTheta])
                         wasObstacle = False
-        
-        return discPoints
+                    prevPos   = checkPos
+                    prevTheta = theta
 
+        self.discontinuityPoints = discPoints
+        return discPoints
+    
+    def draw_discontinuity_points(self, screen, color):
+        """
+        Draws the discontinuity points on the screen.
+        Arguments:
+            screen: The pygame surface where the discontinuity points will be drawn.
+            color: A tuple representing the RGB color of the discontinuity points.
+        Returns:
+            None
+        """
+        for dPoint in self.discontinuityPoints:
+                        pygame.draw.circle(screen, color, dPoint[0], 5)
 
 
     def draw(self, screen):
