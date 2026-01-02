@@ -90,7 +90,7 @@ class Robot:
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__theta       = angleRes * checkAngles
-        self.__rangeSensor = 0
+        self.rangeSensor   = 0
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
@@ -340,8 +340,8 @@ class Robot:
         Returns:
             None
         """
-        self.__rangeSensor    = max(self.__step, rangeSensor)
-        self.__rangeSensor   += (self.__radius)
+        self.rangeSensor  = max(self.__step, rangeSensor)
+        self.rangeSensor += (self.__radius)
 
         
 
@@ -394,7 +394,7 @@ class Robot:
 
         # Define steps along each theta angle
         samples    = 25
-        stepRes    = self.__rangeSensor / samples
+        stepRes    = self.rangeSensor / samples
         checkSteps = np.array(list(range(samples))).astype(np.float64)
         steps      = stepRes * checkSteps
 
@@ -475,7 +475,7 @@ class Robot:
             None
         """
         for dPoint in self.discontinuityPoints:
-                        pygame.draw.circle(screen, color, dPoint[0], 5)
+            pygame.draw.circle(screen, color, dPoint[0], 5)
 
 
     def draw(self, screen):
@@ -490,7 +490,7 @@ class Robot:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
             if self.TBugActive:
-                pygame.draw.circle(screen, self.__color, self.pos, self.__rangeSensor, width=1)
+                pygame.draw.circle(screen, self.__color, self.pos, self.rangeSensor, width=1)
 
 
     def __move_oneStep(self, heading):
