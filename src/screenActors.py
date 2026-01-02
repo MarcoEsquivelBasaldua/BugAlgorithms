@@ -56,6 +56,9 @@ class Robot:
         self.__posHistory     = []
         self.__radius         = 10
         self.__color          = color
+        self.__moving2Goal    = False
+        self.__followingObs   = False
+        self.__normalSign     = 1.0
 
         # Collision check flag
         samples            = 12
@@ -127,6 +130,10 @@ class Robot:
         if self.bug2Active:
             self.mLineHeading = heading
 
+        # Update robot motion state
+        self.__moving2Goal  = True
+        self.__followingObs = False
+
         return collision
 
     def follow_obstacle_boundary(self, screen, goalPos, collisionAngles, obstacleColor):
@@ -165,7 +172,20 @@ class Robot:
 
             normal2Obs = wrap_angle(normal2Obs)
 
-            heading = normal2Obs + (0.5 * np.pi)
+            if self.__moving2Goal:
+                heading1 = normal2Obs + (0.5 * np.pi)
+                heading = wrap_angle(heading1)
+
+                heading2 = normal2Obs - (0.5 * np.pi)
+                heading = wrap_angle(heading2)
+
+                if angle_diff(self.heading, heading1) > angle_diff(self.heading, heading2):
+                    self.__normalSign = -1.0
+                else:
+                    self.__normalSign = 1.0
+
+            heading = normal2Obs + (self.__normalSign * (0.5 * np.pi))
+            #heading = normal2Obs + (0.5 * np.pi)
             heading = wrap_angle(heading)
         else:
             print('This should not happen')
@@ -211,6 +231,10 @@ class Robot:
         # Save robot position into history
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
         self.draw(screen)
+
+        # Update robot motion state
+        self.__moving2Goal  = False
+        self.__followingObs = True
 
 
     def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
@@ -286,6 +310,8 @@ class Robot:
         self.heading          = 0.0
         self.__moving         = False
         self.__posHistory     = []
+        self.__moving2Goal    = False
+        self.__followingObs   = False
         
         # Bug 1 and Bug 2 specific variables
         self.hitPoints        = []
