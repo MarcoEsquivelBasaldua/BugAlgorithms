@@ -197,10 +197,7 @@ if __name__ == "__main__":
                     goalReached, goalCanBeReached = bugAlgorithms.bug2(screen, OBSTACLE_COLOR, robot, goal)
                 
                 if selectedAlgorithm == 'Tangent Bug':
-                    # Print discontinuities for debuging
-                    discPoints = robot.get_discontinuities(screen, OBSTACLE_COLOR)
-
-                    robot.draw_discontinuity_points(screen, DISCONT_POINT_COLOR)
+                    goalReached, goalCanBeReached = bugAlgorithms.tangentBug(screen, OBSTACLE_COLOR, DISCONT_POINT_COLOR, robot, goal)
 
                 robot.draw_history(screen)
 

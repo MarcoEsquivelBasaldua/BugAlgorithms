@@ -98,7 +98,27 @@ def bug2(screen, obstacleColor, robot, goal):
 
 
 
+def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
+    goalReached      = robot.is_goal_reached(goal.get_position())
+    goalCanBeReached = robot.goalCanBeReached
 
-def tangentBug(screen, obstacleColor, robot, goal):
-    pass
+    if not goalReached and goalCanBeReached:
+        # Find and show discontinuity points
+        discPoints = robot.get_discontinuities(screen, obstacleColor)
+        robot.draw_discontinuity_points(screen, discPointColor)
+
+        # Check collision
+        collision, collisionAngles = robot.check_collision(screen, obstacleColor)
+
+        if collision:
+            pass
+        elif len(discPoints) > 0:
+            pass
+        else:
+            _ = robot.move_toward_goal(screen, goal.get_position(), obstacleColor)
+
+
+
+
+    return goalReached, goalCanBeReached
     
