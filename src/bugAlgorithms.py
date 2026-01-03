@@ -113,13 +113,22 @@ def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
         if collision:
             pass
         elif len(discPoints) > 0:
-            # Get T point
-            dist2GoalXY = goal.pos - robot.pos
-            heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
-            heading     = wrap_angle(heading)
-            Tpoint      = robot.rangeSensor * np.array((np.cos(heading), np.sin(heading))).astype(float)
-            Tpoint     += robot.pos
+            if robot.is_obstacle_in_path_to_goal(screen, obstacleColor):
+                # Chose a discontinuity point to follow
+                followPoint = None
+                minDist     = np.inf
 
+                for discPoint in discPoints:
+                    point    = discPoint[0]
+                    currDist = dist(robot.pos, point) + dist(point, goal.pos)
+
+                    if currDist < minDist:
+                        minDist     = currDist
+                        followPoint = point
+
+                _ = robot.move_toward_goal(screen, followPoint, obstacleColor)
+            else:
+                _ = robot.move_toward_goal(screen, goal.get_position(), obstacleColor)
         else:
             _ = robot.move_toward_goal(screen, goal.get_position(), obstacleColor)
 

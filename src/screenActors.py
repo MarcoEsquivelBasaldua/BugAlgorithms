@@ -102,6 +102,9 @@ class Robot:
         Returns:
             A flag telling if the robot is in collision or not
         """
+        if isinstance(goalPos, tuple):
+            goalPos = np.array(goalPos).astype(int)
+
         if self.bug1Active or self.bug2Active:
             # Reset hit points list
             self.hitPoints    = []
@@ -476,6 +479,26 @@ class Robot:
         """
         for dPoint in self.discontinuityPoints:
             pygame.draw.circle(screen, color, dPoint[0], 5)
+
+    def is_obstacle_in_path_to_goal(self, screen, obstacleColor):
+        # Define steps along each theta angle
+        isObstacle = False
+        samples    = 25
+        stepRes    = self.rangeSensor / samples
+        checkSteps = np.array(list(range(samples))).astype(np.float64)
+        steps      = stepRes * checkSteps
+
+        for step in steps:
+            checkPos   = np.array((np.cos(self.heading), np.sin(self.heading)))
+            checkPos  *= step
+            checkPos   =  np.round(checkPos).astype(np.int64)
+            checkPos  += self.pos
+
+            if screen.get_at(checkPos) == obstacleColor:
+                isObstacle = True
+                break
+
+        return isObstacle
 
 
     def draw(self, screen):
