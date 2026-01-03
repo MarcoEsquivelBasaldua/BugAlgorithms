@@ -59,17 +59,15 @@ class Robot:
         self.__moving2Goal    = False
         self.__followingObs   = False
         self.__normalSign     = 1.0
+        self.hitPoints        = []
+        self.minHitPoints     = 38
+        self.obsEncircled     = False
 
         # Collision check flag
         samples            = 12
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
-
-        # Bug 1 and Bug 2 specific variables
-        self.hitPoints    = []
-        self.minHitPoints = 38
-        self.obsEncircled = False
 
         # Bug 1 specific variables
         self.bug1Active   = False
@@ -108,7 +106,7 @@ class Robot:
         # Reset hit points list
         self.hitPoints    = []
         self.obsEncircled = False
-        
+
         if self.bug1Active:
             self.minDist2Goal = np.inf
         elif self.bug2Active:
@@ -313,8 +311,6 @@ class Robot:
         self.__posHistory     = []
         self.__moving2Goal    = False
         self.__followingObs   = False
-        
-        # Bug 1 and Bug 2 specific variables
         self.hitPoints        = []
         self.obsEncircled     = False
 
