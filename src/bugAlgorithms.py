@@ -100,6 +100,18 @@ def bug2(screen, obstacleColor, robot, goal):
 
 
 def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
+    """
+    Implements the Tangent Bug algorithm for robot navigation.
+    Args:
+        screen: The pygame surface where the robot will be drawn.
+        obstacleColor: The color used to represent obstacles on the screen.
+        discPointColor: The color used to represent discontinuity points on the screen.
+        robot: The robot object that will navigate the environment.
+        goal: The goal object representing the target position.
+    Returns:
+        goalReached: A boolean indicating if the robot has reached the goal.
+        goalCanBeReached: A boolean indicating if the goal can be reached.
+    """
     goalReached      = robot.is_goal_reached(goal.get_position())
     goalCanBeReached = robot.goalCanBeReached
 
