@@ -121,9 +121,19 @@ def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
                 goalCanBeReached       = False
                 robot.goalCanBeReached = goalCanBeReached
             else:
-                # Check if can move to goal again
+                # Check if goal is seen
                 if not robot.is_obstacle_in_path_to_goal(screen, goal.pos, obstacleColor):
-                    mustFollowObstacle = False
+                    # Check heading to goal
+                    dist2GoalXY   = goal.pos - robot.pos
+                    headingToGoal = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+                    headingToGoal = wrap_angle(headingToGoal)
+                    newPos        = robot.pos + robot.stepSize * np.array([np.cos(headingToGoal), np.sin(headingToGoal)])
+                    newPos        = np.round(newPos).astype(int)
+
+                    # Check if moving to new position collides with obstacle
+                    collisionAtNewPos, _ = robot.check_collision(screen, obstacleColor, True, newPos)
+                    if not collisionAtNewPos:
+                        mustFollowObstacle = False
 
             if mustFollowObstacle:
                 robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)

@@ -50,7 +50,7 @@ class Robot:
         self.goalReached      = False
         self.goalCanBeReached = True
         self.heading          = 0.0
-        self.__step           = 3
+        self.stepSize         = 3
         self.__nearGoalTh     = 5
         self.__moving         = False
         self.__posHistory     = []
@@ -343,7 +343,7 @@ class Robot:
         Returns:
             None
         """
-        self.rangeSensor  = max(self.__step, rangeSensor)
+        self.rangeSensor  = max(self.stepSize, rangeSensor)
         self.rangeSensor += (self.__radius)
 
         
@@ -358,7 +358,7 @@ class Robot:
             A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
         """
-        rangeSensor = self.__step + self.__radius
+        rangeSensor = self.stepSize + self.__radius
 
         collision           = False
         firstAndLastContact = []
@@ -539,7 +539,7 @@ class Robot:
             A numpy array representing the change in position (x, y)."""
         heading      = wrap_angle(heading)
         self.heading = heading
-        newPos       = self.__step * np.array((np.cos(heading), np.sin(heading))).astype(float)
+        newPos       = self.stepSize * np.array((np.cos(heading), np.sin(heading))).astype(float)
         newPos       = np.round(newPos).astype(int)
 
         return newPos
