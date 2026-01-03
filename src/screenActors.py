@@ -480,7 +480,17 @@ class Robot:
         for dPoint in self.discontinuityPoints:
             pygame.draw.circle(screen, color, dPoint[0], 5)
 
-    def is_obstacle_in_path_to_goal(self, screen, obstacleColor):
+
+    def is_obstacle_in_path_to_goal(self, screen, goalPos, obstacleColor):
+        """
+        Checks if an obstacle is in the path from the robot to the goal.
+        Arguments:
+            screen: The pygame surface where obstacles are checked.
+            goalPos: A numpy array representing the position of the goal.
+            obstacleColor: A tuple representing the RGB color of obstacles.
+        Returns:
+            A boolean indicating whether an obstacle is in the path to the goal.
+        """
         # Define steps along each theta angle
         isObstacle = False
         samples    = 25
@@ -488,8 +498,12 @@ class Robot:
         checkSteps = np.array(list(range(samples))).astype(np.float64)
         steps      = stepRes * checkSteps
 
+        dist2GoalXY = goalPos - self.pos
+        heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+        heading     = wrap_angle(heading)
+
         for step in steps:
-            checkPos   = np.array((np.cos(self.heading), np.sin(self.heading)))
+            checkPos   = np.array((np.cos(heading), np.sin(heading)))
             checkPos  *= step
             checkPos   =  np.round(checkPos).astype(np.int64)
             checkPos  += self.pos
