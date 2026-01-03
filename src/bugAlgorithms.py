@@ -3,6 +3,7 @@ import sys
 sys.path.insert(1, './src')
 from screenActors import distance as dist
 from screenActors import wrap_angle
+from screenActors import angle_diff
 
 def bug1(screen, obstacleColor, robot, goal):
     """
@@ -142,14 +143,15 @@ def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
         elif len(discPoints) > 0:
             if robot.is_obstacle_in_path_to_goal(screen, goal.pos, obstacleColor):
                 # Chose a discontinuity point to follow
-                followPoint = None
-                minDist     = np.inf
+                followPoint = discPoints[0][0]
+                minDist     = dist(robot.pos, followPoint) + dist(followPoint, goal.pos)
 
-                for discPoint in discPoints:
-                    point    = discPoint[0]
-                    currDist = dist(robot.pos, point) + dist(point, goal.pos)
+                for discPoint in discPoints[1:]:
+                    point      = discPoint[0]
+                    pointAngle = discPoint[1]
+                    currDist   = dist(robot.pos, point) + dist(point, goal.pos)
 
-                    if currDist < minDist:
+                    if currDist < minDist and angle_diff(pointAngle, robot.heading) < np.deg2rad(15.0):
                         minDist     = currDist
                         followPoint = point
 
