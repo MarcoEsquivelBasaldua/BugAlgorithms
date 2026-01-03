@@ -105,16 +105,15 @@ class Robot:
         if isinstance(goalPos, tuple):
             goalPos = np.array(goalPos).astype(int)
 
-        if self.bug1Active or self.bug2Active:
-            # Reset hit points list
-            self.hitPoints    = []
-            self.obsEncircled = False
+        # Reset hit points list
+        self.hitPoints    = []
+        self.obsEncircled = False
         
-            if self.bug1Active:
-                self.minDist2Goal = np.inf
-            elif self.bug2Active:
-                self.hitObstacle         = False
-                self.dist2goalAtHitPoint = np.inf
+        if self.bug1Active:
+            self.minDist2Goal = np.inf
+        elif self.bug2Active:
+            self.hitObstacle         = False
+            self.dist2goalAtHitPoint = np.inf
 
         # Get new robot position
         dist2GoalXY = goalPos - self.pos
@@ -150,18 +149,17 @@ class Robot:
         Returns:
             None
         """
-        if self.bug1Active or self.bug2Active:
-            # Save hit point
-            dist2Goal = distance(self.pos, goalPos)
-            self.hitPoints.append((self.pos, dist2Goal))
+        # Save hit point
+        dist2Goal = distance(self.pos, goalPos)
+        self.hitPoints.append((self.pos, dist2Goal))
 
-            if self.bug1Active:
-                self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
-            elif self.bug2Active:
-                if not self.hitObstacle:
-                    self.hitObstacle         = True
-                    self.hitpoint            = self.pos
-                    self.dist2goalAtHitPoint = distance(self.pos, goalPos)
+        if self.bug1Active:
+            self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
+        elif self.bug2Active:
+            if not self.hitObstacle:
+                self.hitObstacle         = True
+                self.hitpoint            = self.pos
+                self.dist2goalAtHitPoint = distance(self.pos, goalPos)
 
         collisionAnglesLen = len(collisionAngles)
         if collisionAnglesLen > 0:

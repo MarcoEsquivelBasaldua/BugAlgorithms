@@ -160,7 +160,5 @@ def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
             _ = robot.move_toward_goal(screen, goal.get_position(), obstacleColor)
 
 
-
-
     return goalReached, goalCanBeReached
     
