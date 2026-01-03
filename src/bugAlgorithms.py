@@ -105,15 +105,32 @@ def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
     if not goalReached and goalCanBeReached:
         # Find and show discontinuity points
         discPoints = robot.get_discontinuities(screen, obstacleColor)
-        robot.draw_discontinuity_points(screen, discPointColor)
+        #robot.draw_discontinuity_points(screen, discPointColor)
 
         # Check collision
         collision, collisionAngles = robot.check_collision(screen, obstacleColor)
 
         if collision:
-            pass
+            mustFollowObstacle = True
+            # Check if obstacle has been encircled
+            if len(robot.hitPoints) > robot.minHitPoints:
+                if dist(robot.hitPoints[-1][0], robot.hitPoints[0][0]) < 3.0:
+                    robot.obsEncircled = True
+
+            if robot.obsEncircled:
+                goalCanBeReached       = False
+                robot.goalCanBeReached = goalCanBeReached
+            else:
+                # Check if can move to goal again
+                if not robot.is_obstacle_in_path_to_goal(screen, goal.pos, obstacleColor):
+                    mustFollowObstacle = False
+
+            if mustFollowObstacle:
+                robot.follow_obstacle_boundary(screen, goal.get_position(), collisionAngles, obstacleColor)
+            else:
+                _ = robot.move_toward_goal(screen, goal.get_position(), obstacleColor)
         elif len(discPoints) > 0:
-            if robot.is_obstacle_in_path_to_goal(screen, obstacleColor):
+            if robot.is_obstacle_in_path_to_goal(screen, goal.pos, obstacleColor):
                 # Chose a discontinuity point to follow
                 followPoint = None
                 minDist     = np.inf
