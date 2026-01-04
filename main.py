@@ -35,24 +35,24 @@ if __name__ == "__main__":
     BUTTON_HEIGHT_SMALL  = 60
     BUTTON_WIDTH_SMALL   = 76
 
-    DRAW_OBSTACLE_BUTTON = screenTools.Button(30 , 40 , BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Draw Obstacle', BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    PLACE_GOAL_BUTTON    = screenTools.Button(30 , 160, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Place Goal'   , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    PLACE_ROBOT_BUTTON   = screenTools.Button(30 , 280, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Place Robot'  , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    BUG1_BUTTON          = screenTools.Button(16 , 400, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'BUG 1'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    BUG2_BUTTON          = screenTools.Button(108, 400, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'BUG 2'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    TANGENT_BUG_BUTTON   = screenTools.Button(62 , 480, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'T BUG'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    RESET_PLACES_BUTTON  = screenTools.Button(16 , 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'RESET'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
-    GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    DRAW_OBSTACLE_BUTTON = screenTools.Button(30 , 40 , BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Draw Obstacle', BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    PLACE_GOAL_BUTTON    = screenTools.Button(30 , 160, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Place Goal'   , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    PLACE_ROBOT_BUTTON   = screenTools.Button(30 , 280, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Place Robot'  , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    BUG1_BUTTON          = screenTools.Button(16 , 400, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'BUG 1'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    BUG2_BUTTON          = screenTools.Button(108, 400, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'BUG 2'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    TANGENT_BUG_BUTTON   = screenTools.Button(62 , 480, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'T BUG'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    RESET_PLACES_BUTTON  = screenTools.Button(16 , 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'RESET'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    RESET_ALL_BUTTON     = screenTools.Button(108, 620, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT_SMALL, 'EMPTY'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
+    GO_BUTTON            = screenTools.Button(30 , 700, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'GO!!!'        , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
 
     # Silder
-    SLIDER_RANGE = screenTools.SlideBar((16, 550), 168, 18, BUTTON_COLOR, BUTTON_PRESSED_COLOR)
+    SLIDER_RANGE = screenTools.SlideBar((16, 550), 168, 18, BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
 
     # Visualizers
-    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0),  30, 200, MESSAGE_COLOR)
-    POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR)
-    GOAL_REACHED_VISUALIZER  = screenTools.Visualizer((1130, 0), 25, 270, MESSAGE_COLOR)
-    SLIDER_RANGE_VISUALIZER  = screenTools.Visualizer((100, 580),17,  50, MESSAGE_COLOR)
+    SELECTED_ALG0_VISUALIZER = screenTools.Visualizer((220, 0),  30, 200, MESSAGE_COLOR, screen)
+    POSITIONS_VISUALIZER     = screenTools.Visualizer((900,870), 20, 500, MESSAGE_COLOR, screen)
+    GOAL_REACHED_VISUALIZER  = screenTools.Visualizer((1130, 0), 25, 270, MESSAGE_COLOR, screen)
+    SLIDER_RANGE_VISUALIZER  = screenTools.Visualizer((100, 580),17,  50, MESSAGE_COLOR, screen)
 
     # Obstacles list
     OBSTACLE_WIDTH = 20
@@ -95,18 +95,18 @@ if __name__ == "__main__":
         pygame.draw.rect(screen, TOOLBAR_COLOR, toolsBar, width=0)
 
         # Place buttons in tools bar
-        DRAW_OBSTACLE_BUTTON.draw(screen)
-        PLACE_GOAL_BUTTON.draw(screen)
-        PLACE_ROBOT_BUTTON.draw(screen)
-        BUG1_BUTTON.draw(screen)
-        BUG2_BUTTON.draw(screen)
-        TANGENT_BUG_BUTTON.draw(screen)
-        GO_BUTTON.draw(screen)
-        RESET_PLACES_BUTTON.draw(screen)
-        RESET_ALL_BUTTON.draw(screen)
+        DRAW_OBSTACLE_BUTTON.draw()
+        PLACE_GOAL_BUTTON.draw()
+        PLACE_ROBOT_BUTTON.draw()
+        BUG1_BUTTON.draw()
+        BUG2_BUTTON.draw()
+        TANGENT_BUG_BUTTON.draw()
+        GO_BUTTON.draw()
+        RESET_PLACES_BUTTON.draw()
+        RESET_ALL_BUTTON.draw()
 
-        SLIDER_RANGE.draw(screen)
-        SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
+        SLIDER_RANGE.draw()
+        SLIDER_RANGE_VISUALIZER.draw('Range = ' + str(SLIDER_RANGE.range))
 
         # Place Robot
         robot.place_robot(PLACE_ROBOT_BUTTON, wasMousePresed)
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             GO_BUTTON.reset()
             TANGENT_BUG_BUTTON.wasPressed = False
         
-        SELECTED_ALG0_VISUALIZER.draw(screen, selectedAlgorithm)
+        SELECTED_ALG0_VISUALIZER.draw(selectedAlgorithm)
 
         # Reset Options
         if RESET_PLACES_BUTTON.was_button_pressed() or RESET_ALL_BUTTON.was_button_pressed():
@@ -184,10 +184,10 @@ if __name__ == "__main__":
             goalCanBeReached = True
 
             if selectedAlgorithm == '':
-                SELECTED_ALG0_VISUALIZER.draw(screen, 'Select Algorithm')
+                SELECTED_ALG0_VISUALIZER.draw('Select Algorithm')
 
             else:
-                POSITIONS_VISUALIZER.draw(screen, 'Robot position (' + str(robot.pos[0]) + ', ' + str(robot.pos[1]) +'), '+\
+                POSITIONS_VISUALIZER.draw('Robot position (' + str(robot.pos[0]) + ', ' + str(robot.pos[1]) +'), '+\
                                         'Goal position(' + str(goal.pos[0]) + ', ' + str(goal.pos[1]) +')')
                 
                 if selectedAlgorithm == 'Bug 1':
@@ -208,9 +208,9 @@ if __name__ == "__main__":
                 robot.draw()
 
                 if goalReached:
-                    GOAL_REACHED_VISUALIZER.draw(screen, 'Goal reached !!!')
+                    GOAL_REACHED_VISUALIZER.draw('Goal reached !!!')
                 elif not goalCanBeReached:
-                    GOAL_REACHED_VISUALIZER.draw(screen, 'Goal cannot be reached')
+                    GOAL_REACHED_VISUALIZER.draw('Goal cannot be reached')
 
         wasMousePresed = False
         pygame.display.flip()    # Update the display

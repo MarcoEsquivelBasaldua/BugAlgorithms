@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 
 class Button:
-    def __init__(self, x, y, width, height, text, color, pressedColor, wasPressed=False):
+    def __init__(self, x, y, width, height, text, color, pressedColor, screen, wasPressed=False):
         """
         Initializes a button with position, size, text, colors, and pressed state.
         Arguments:
@@ -13,6 +13,7 @@ class Button:
             text: The text displayed on the button.
             color: The normal color of the button.
             pressedColor: The color of the button when pressed.
+            screen: The pygame surface where the button will be drawn.
             wasPressed: A boolean indicating if the button was pressed.
         Returns:
             None
@@ -23,22 +24,23 @@ class Button:
         self.__color        = color
         self.__pressedColor = pressedColor
         self.__currentColor = color
+        self.__screen       = screen
         self.__font         = pygame.font.SysFont("Arial", 20)
 
-    def draw(self, surface):
+    def draw(self):
         """
         Draws the button on the given surface.
         Arguments:
-            surface: The pygame surface where the button will be drawn.
+            None
         Returns:
             None
         """
-        pygame.draw.rect(surface, self.__currentColor, self.__rect)
+        pygame.draw.rect(self.__screen, self.__currentColor, self.__rect)
 
         text_surface = self.__font.render(self.__text, True, (0, 0, 0)) # Black text
         text_rect    = text_surface.get_rect(center=self.__rect.center)
 
-        surface.blit(text_surface, text_rect)
+        self.__screen.blit(text_surface, text_rect)
 
     def handle_event(self, event):
         """
@@ -76,7 +78,7 @@ class Button:
 
 
 class Visualizer:
-    def __init__(self, pos, fontSize, width, color):
+    def __init__(self, pos, fontSize, width, color, screen):
         """
         Initializes a visualizer with position, font size, width, color, and fixed message.
         Arguments:
@@ -84,21 +86,22 @@ class Visualizer:
             fontSize: The font size for the text.
             width: The width of the visualizer.
             color: The color of the visualizer background.
+            screen: The pygame surface where the visualizer will be drawn.
         Returns:
             None
         """
-        self.pos    = pos
-        self.color  = color
-        self.height = fontSize + 10
-        self.width  = width
-        self.__rect = pygame.Rect(pos[0], pos[1], width, self.height)
-        self.__font = pygame.font.SysFont("Arial", fontSize)
+        self.pos      = pos
+        self.color    = color
+        self.height   = fontSize + 10
+        self.width    = width
+        self.__screen = screen
+        self.__rect   = pygame.Rect(pos[0], pos[1], width, self.height)
+        self.__font   = pygame.font.SysFont("Arial", fontSize)
 
-    def draw(self, screen, messageVar):
+    def draw(self, messageVar):
         """
         Draws the visualizer on the given screen with a variable message.
         Arguments:
-            screen: The pygame surface where the visualizer will be drawn.
             message: A variable message string to display alongside the fixed message.
         Returns:
             None
@@ -106,11 +109,11 @@ class Visualizer:
         text_surface = self.__font.render(messageVar, True, self.color)
         text_rect    = text_surface.get_rect(center=self.__rect.center)
 
-        screen.blit(text_surface, text_rect)
+        self.__screen.blit(text_surface, text_rect)
 
 
 class SlideBar:
-    def __init__(self, pos, width, height, color, pressedColor,):
+    def __init__(self, pos, width, height, color, pressedColor, screen):
         """
         Initializes a slide bar with position, size, colors, and range.
         Arguments:
@@ -119,20 +122,22 @@ class SlideBar:
             height: The height of the slide bar.
             color: The normal color of the slide bar.
             pressedColor: The color of the slide bar when pressed.
+            screen: The pygame surface where the slide bar will be drawn.
         Returns:
             None
         """
-        self.range = 0
-        self.pos = pos
-        self.width = width
-        self.height = height
-        self.color = color
+        self.range        = 0
+        self.pos          = pos
+        self.width        = width
+        self.height       = height
+        self.color        = color
         self.pressedColor = pressedColor
-        self.__sliderPos = pos[0]
-        self.__maxRange = 100
-        self.__rect = pygame.Rect(pos[0], pos[1], width, self.height)
+        self.__screen     = screen
+        self.__sliderPos  = pos[0]
+        self.__maxRange   = 100
+        self.__rect       = pygame.Rect(pos[0], pos[1], width, self.height)
 
-    def draw(self, screen):
+    def draw(self):
         """
         Draws the slide bar on the given screen.
         Arguments:
@@ -140,11 +145,11 @@ class SlideBar:
         Returns:
             None
         """
-        pygame.draw.rect(screen, self.color, self.__rect)
+        pygame.draw.rect(self.__screen, self.color, self.__rect)
 
         # Selector position
         pos = np.array((self.__sliderPos, self.pos[1] + self.height//2)).astype(int)
-        pygame.draw.circle(screen, self.pressedColor, pos, self.height//2 + 2)
+        pygame.draw.circle(self.__screen, self.pressedColor, pos, self.height//2 + 2)
 
     def handle_event(self, event):
         """
