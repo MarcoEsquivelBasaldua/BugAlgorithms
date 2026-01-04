@@ -168,14 +168,14 @@ if __name__ == "__main__":
             robot.reset()
             goal.reset()
             GO_BUTTON.reset()
+            BUG1_BUTTON.reset()
+            BUG2_BUTTON.reset()
+            TANGENT_BUG_BUTTON.reset()
             RESET_PLACES_BUTTON.reset()
 
             if RESET_ALL_BUTTON.was_button_pressed():
                 obstacles         = []
                 selectedAlgorithm = ''
-                BUG1_BUTTON.reset()
-                BUG2_BUTTON.reset()
-                TANGENT_BUG_BUTTON.reset()
                 RESET_ALL_BUTTON.reset()
 
         # Start simulation
