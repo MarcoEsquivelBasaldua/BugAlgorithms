@@ -48,26 +48,20 @@ class Robot:
         self.pos              = None
         self.exist            = False
         self.goalReached      = False
+        self.obsEncircled     = False
         self.goalCanBeReached = True
-        self.heading          = 0.0
+        self.minHitPoints     = 38
         self.stepSize         = 3
-        self.__nearGoalTh     = 5
-        self.__moving         = False
-        self.__posHistory     = []
-        self.__radius         = 10
+        self.heading          = 0.0
+        self.hitPoints        = []
         self.__color          = color
+        self.__moving         = False
         self.__moving2Goal    = False
         self.__followingObs   = False
+        self.__nearGoalTh     = 5
+        self.__radius         = 10
         self.__normalSign     = 1.0
-        self.hitPoints        = []
-        self.minHitPoints     = 38
-        self.obsEncircled     = False
-
-        # Collision check flag
-        samples            = 12
-        angleRes           = twoPi / samples
-        checkAngles        = np.array(list(range(samples))).astype(np.float64)
-        self.__checkAngles = angleRes * checkAngles
+        self.__posHistory     = []
 
         # Bug 1 specific variables
         self.bug1Active   = False
@@ -75,20 +69,26 @@ class Robot:
 
         # Bug 2 specific variables
         self.bug2Active          = False
-        self.hitpoint            = None
-        self.mLineHeading        = 0.0
         self.hitObstacle         = False
+        self.hitpoint            = None
         self.prevDist2Goal       = np.inf
         self.dist2goalAtHitPoint = np.inf
+        self.mLineHeading        = 0.0
 
         # Tangent Bug specific variables
-        self.TBugActive = False
+        self.TBugActive          = False
+        self.rangeSensor         = 0
         self.discontinuityPoints = []
-        samples            = 120
+        samples                  = 120
+        angleRes                 = twoPi / samples
+        checkAngles              = np.array(list(range(samples))).astype(np.float64)
+        self.__theta             = angleRes * checkAngles
+
+        # Collision check flag
+        samples            = 12
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
-        self.__theta       = angleRes * checkAngles
-        self.rangeSensor   = 0
+        self.__checkAngles = angleRes * checkAngles
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
