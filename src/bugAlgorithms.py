@@ -95,7 +95,6 @@ def bug2(robot, goal):
     return goalReached, goalCanBeReached
 
 
-
 def tangentBug(robot, goal):
     """
     Implements the Tangent Bug algorithm for robot navigation.

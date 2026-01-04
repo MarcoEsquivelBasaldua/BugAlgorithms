@@ -780,4 +780,3 @@ def linear_regression(xMin, xMax, yMin, yMax, value):
     m      = deltaY / deltaX
 
     return (m * (value - xMin) + yMin)
-
