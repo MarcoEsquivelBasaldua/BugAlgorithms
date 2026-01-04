@@ -15,6 +15,7 @@ class Obstacle:
         """
         self.vertices   = []
 
+
     def add_vertice(self, vertice):
         """
         Adds a vertice to the obstacle's vertices list.
@@ -24,6 +25,7 @@ class Obstacle:
             None
         """
         self.vertices.append(vertice)
+
 
     def reset(self):
         """
@@ -36,38 +38,39 @@ class Obstacle:
         self.vertices = []
 
 
+
 class Robot:
-    def __init__(self, color):
+    def __init__(self, color, screen, obstacleColor, toolBarWidth):
         """
         Initializes a robot with a position, existence flag, position history, radius, color, and range sensor.
         Arguments:
             color: A tuple representing the RGB color of the robot.
             rangeSensor: An integer representing the range of the robot's sensor (default is 0).
+            screen: The pygame surface where the robot will be drawn.
+            obstacleColor: A tuple representing the RGB color of the obstacles.
+            toolBarWidth: An integer representing the width of the toolbar.
         Returns:
             None"""
         self.pos              = None
         self.exist            = False
         self.goalReached      = False
+        self.obsEncircled     = False
         self.goalCanBeReached = True
-        self.heading          = 0.0
+        self.minHitPoints     = 38
         self.stepSize         = 3
-        self.__nearGoalTh     = 5
-        self.__moving         = False
-        self.__posHistory     = []
-        self.__radius         = 10
+        self.heading          = 0.0
+        self.hitPoints        = []
         self.__color          = color
+        self.__screen         = screen
+        self.__obstacleColor  = obstacleColor
+        self.__toolBarWidth   = toolBarWidth
+        self.__moving         = False
         self.__moving2Goal    = False
         self.__followingObs   = False
+        self.__nearGoalTh     = 5
+        self.__radius         = 10
         self.__normalSign     = 1.0
-        self.hitPoints        = []
-        self.minHitPoints     = 38
-        self.obsEncircled     = False
-
-        # Collision check flag
-        samples            = 12
-        angleRes           = twoPi / samples
-        checkAngles        = np.array(list(range(samples))).astype(np.float64)
-        self.__checkAngles = angleRes * checkAngles
+        self.__posHistory     = []
 
         # Bug 1 specific variables
         self.bug1Active   = False
@@ -75,27 +78,122 @@ class Robot:
 
         # Bug 2 specific variables
         self.bug2Active          = False
-        self.hitpoint            = None
-        self.mLineHeading        = 0.0
         self.hitObstacle         = False
+        self.hitpoint            = None
         self.prevDist2Goal       = np.inf
         self.dist2goalAtHitPoint = np.inf
+        self.mLineHeading        = 0.0
 
         # Tangent Bug specific variables
-        self.TBugActive = False
+        self.TBugActive          = False
+        self.rangeSensor         = 0
         self.discontinuityPoints = []
-        samples            = 120
+        samples                  = 120
+        angleRes                 = twoPi / samples
+        checkAngles              = np.array(list(range(samples))).astype(np.float64)
+        self.__theta             = angleRes * checkAngles
+
+        # Collision check flag
+        samples            = 12
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
-        self.__theta       = angleRes * checkAngles
-        self.rangeSensor   = 0
+        self.__checkAngles = angleRes * checkAngles
+
+
+    def reset(self):
+        """
+        Resets the robot's position and existence flag.
+        Arguments:
+            None
+        Returns:
+            None
+        """
+        self.pos              = None
+        self.exist            = False
+        self.goalReached      = False
+        self.goalCanBeReached = True
+        self.heading          = 0.0
+        self.__moving         = False
+        self.__posHistory     = []
+        self.__moving2Goal    = False
+        self.__followingObs   = False
+        self.hitPoints        = []
+        self.obsEncircled     = False
+
+        # Bug 1 specific variables
+        self.bug1Active   = False
+        self.minDist2Goal = np.inf
+
+        # Bug 2 specific variables
+        self.bug2Active          = False
+        self.mLineHeading        = 0.0
+        self.hitObstacle         = False
+        self.dist2goalAtHitPoint = np.inf
+        self.prevDist2Goal       = np.inf
+
+        # Tangent Bug specific variables
+        self.TBugActive          = False
+        self.discontinuityPoints = []
         
 
-    def move_toward_goal(self, screen, goalPos, obstacleColor):
+    def place_robot(self, button, wasMousePresed):
+        """
+        Places the robot on the screen when the specified button is pressed and the mouse is clicked.
+        Arguments:
+            button: The button that triggers the placement of the robot.
+            wasMousePresed: A boolean indicating if the mouse was pressed.
+        Returns:
+            None
+        """
+        if button.wasPressed and pygame.mouse.get_pos()[0] > self.__toolBarWidth:
+            currentPos = pygame.mouse.get_pos()
+            pygame.draw.circle(self.__screen, self.__color, currentPos, self.__radius)
+
+            if wasMousePresed:
+                self.pos   = np.array(currentPos, dtype=np.int64)
+                self.exist = True
+                button.reset()
+        if not self.__moving:
+            self.draw()
+
+
+    def draw(self):
+        """
+        Draws the robot on the screen if it exists.
+        Arguments:
+            none
+        Returns:
+            None
+        """
+        if self.exist:
+            pygame.draw.circle(self.__screen, self.__color, self.pos, self.__radius)
+
+            if self.TBugActive:
+                pygame.draw.circle(self.__screen, self.__color, self.pos, self.rangeSensor, width=1)
+
+    
+    def draw_history(self):
+        """
+        Draws the robot's position history on the screen with a fading effect.
+        Arguments:
+            None
+        Returns:
+            None
+        """
+        nOfSteps = len(self.__posHistory)
+
+        for i, pos in enumerate(self.__posHistory):
+            alphaColor = (i / nOfSteps) * 255
+            alphaColor = 255 - int(alphaColor)
+            newColor   = (alphaColor, alphaColor, 255)
+
+            pygame.draw.circle(self.__screen, newColor, pos, self.__radius // 3)
+
+
+    def move_toward_goal(self, goalPos):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
-            screen: The pygame surface where the robot will be drawn.
             goalPos: A tuple representing the (x, y) coordinates of the goal position.
         Returns:
             A flag telling if the robot is in collision or not
@@ -122,10 +220,10 @@ class Robot:
         self.pos += newPos
 
         # Check collision on new proposed position
-        collision, _ = self.check_collision(screen, obstacleColor, True, self.pos)
+        collision, _ = self.check_collision(True, self.pos)
 
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
-        self.draw(screen)
+        self.draw()
 
         if self.bug2Active:
             self.mLineHeading = heading
@@ -136,14 +234,13 @@ class Robot:
 
         return collision
 
-    def follow_obstacle_boundary(self, screen, goalPos, collisionAngles, obstacleColor):
+
+    def follow_obstacle_boundary(self, goalPos, collisionAngles):
         """
         Moves the robot along the boundary of an obstacle based on collision angles.
         Arguments:
-            screen: The pygame surface where the robot will be drawn.
             goalPos: A tuple representing the (x, y) coordinates of the goal position.
             collisionAngles: A list of angles where the robot is in contact with the obstacle.
-            obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
             None
         """
@@ -197,7 +294,7 @@ class Robot:
         pos    = self.pos + newPos
 
         # Check if new position is still in contact to obstacle
-        collision, _ = self.check_collision(screen, obstacleColor, True, pos)
+        collision, _ = self.check_collision(True, pos)
 
         if collision: # Push robot away from obstacle
             # Get angles difference, map to a distance and pull robot away from obstacle
@@ -209,7 +306,7 @@ class Robot:
             pos            += deltaXY
 
         # Check if new position is still in contact to obstacle
-        collision, _ = self.check_collision(screen, obstacleColor, True, pos)
+        collision, _ = self.check_collision(True, pos)
 
         if not collision: # Pull robot toward the obstacle
             steps2Check = 20
@@ -218,7 +315,7 @@ class Robot:
                 newPos    = np.round(newPos).astype(int)
                 pos2Check = pos + newPos
 
-                coll, _ = self.check_collision(screen, obstacleColor, True, pos2Check)
+                coll, _ = self.check_collision(True, pos2Check)
 
                 if coll:
                     pos = pos2Check
@@ -229,51 +326,12 @@ class Robot:
 
         # Save robot position into history
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
-        self.draw(screen)
+        self.draw()
 
         # Update robot motion state
         self.__moving2Goal  = False
         self.__followingObs = True
 
-
-    def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
-        """
-        Places the robot on the screen when the specified button is pressed and the mouse is clicked.
-        Arguments:
-            screen: The pygame surface where the robot will be drawn.
-            button: The button that triggers the placement of the robot.
-            toolbarWidth: The width of the toolbar to ensure the robot is placed outside of it.
-            wasMousePresed: A boolean indicating if the mouse was pressed.
-        Returns:
-            None
-        """
-        if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
-            currentPos = pygame.mouse.get_pos()
-            pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
-
-            if wasMousePresed:
-                self.pos   = np.array(currentPos, dtype=np.int64)
-                self.exist = True
-                button.reset()
-        if not self.__moving:
-            self.draw(screen)
-
-    def draw_history(self, screen):
-        """
-        Draws the robot's position history on the screen with a fading effect.
-        Arguments:
-            screen: The pygame surface where the history will be drawn.
-        Returns:
-            None
-        """
-        nOfSteps = len(self.__posHistory)
-
-        for i, pos in enumerate(self.__posHistory):
-            alphaColor = (i / nOfSteps) * 255
-            alphaColor = 255 - int(alphaColor)
-            newColor   = (alphaColor, alphaColor, 255)
-
-            pygame.draw.circle(screen, newColor, pos, self.__radius // 3)
 
     def is_goal_reached(self, goalPos):
         """
@@ -293,41 +351,7 @@ class Robot:
             self.__moving    = False
 
         return self.goalReached
-
-    def reset(self):
-        """
-        Resets the robot's position and existence flag.
-        Arguments:
-            None
-        Returns:
-            None
-        """
-        self.pos              = None
-        self.exist            = False
-        self.goalReached      = False
-        self.goalCanBeReached = True
-        self.heading          = 0.0
-        self.__moving         = False
-        self.__posHistory     = []
-        self.__moving2Goal    = False
-        self.__followingObs   = False
-        self.hitPoints        = []
-        self.obsEncircled     = False
-
-        # Bug 1 specific variables
-        self.bug1Active   = False
-        self.minDist2Goal = np.inf
-
-        # Bug 2 specific variables
-        self.bug2Active          = False
-        self.mLineHeading        = 0.0
-        self.hitObstacle         = False
-        self.dist2goalAtHitPoint = np.inf
-        self.prevDist2Goal       = np.inf
-
-        # Tangent Bug specific variables
-        self.TBugActive = False
-        self.descontinuityPoints = []
+    
 
     def update_range_sensor(self, rangeSensor):
         """
@@ -339,15 +363,14 @@ class Robot:
         """
         self.rangeSensor  = max(self.stepSize, rangeSensor)
         self.rangeSensor += (self.__radius)
-
         
 
-    def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
+    def check_collision(self, localUse = False, pos = None):
         """
         Checks for collisions around the robot using its range sensor.
         Arguments:
-            screen: The pygame surface where the robot is drawn.
-            obstacleColor: A tuple representing the RGB color of the obstacles.
+            localUse: A boolean indicating whether to use a local position for collision checking.
+            pos: A numpy array representing the position to check for collisions (used if localUse is True).
         Returns:
             A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
@@ -368,7 +391,7 @@ class Robot:
             checkPos  =  np.round(checkPos).astype(np.int64)
             checkPos += usePos
 
-            if screen.get_at(checkPos) == obstacleColor:
+            if self.__screen.get_at(checkPos) == self.__obstacleColor:
                 collision = True
                 if len(firstAndLastContact) < 2:
                     firstAndLastContact.append(angle)
@@ -378,12 +401,9 @@ class Robot:
         return collision, firstAndLastContact
     
 
-    def get_discontinuities(self, screen, obstacleColor):
+    def get_discontinuities(self):
         """
         Gets the discontinuity points detected by the robot's range sensor.
-        Arguments:
-            screen: The pygame surface where the robot is drawn.
-            obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
             A list of discontinuity points detected by the robot's range sensor.
         """
@@ -412,11 +432,11 @@ class Robot:
             if checkPos[0] < 200 or checkPos[1] < 0:
                 prevPos = checkPos + np.array((1, 1)).astype(int)
                 break
-            if checkPos[0] >= screen.get_width() or checkPos[1] >= screen.get_height():
+            if checkPos[0] >= self.__screen.get_width() or checkPos[1] >= self.__screen.get_height():
                 prevPos = checkPos - np.array((2, 2)).astype(int)
                 break
 
-            if screen.get_at(checkPos) == obstacleColor:
+            if self.__screen.get_at(checkPos) == self.__obstacleColor:
                 wasObstacle = True
                 prevPos     = checkPos
                 break
@@ -435,11 +455,11 @@ class Robot:
                 if checkPos[0] < 200 or checkPos[1] < 0:
                     prevPos = checkPos + np.array((1, 1)).astype(int)
                     break
-                if checkPos[0] >= screen.get_width() or checkPos[1] >= screen.get_height():
+                if checkPos[0] >= self.__screen.get_width() or checkPos[1] >= self.__screen.get_height():
                     prevPos = checkPos - np.array((2, 2)).astype(int)
                     break
 
-                if screen.get_at(checkPos) == obstacleColor:
+                if self.__screen.get_at(checkPos) == self.__obstacleColor:
                     if not wasObstacle:
                         discPoints.append([checkPos, theta])
                     elif np.abs(prevRadius - radius) > 23:
@@ -452,7 +472,7 @@ class Robot:
                     prevRadius = radius
                     break
                 if i == (nOfSteps-1):
-                    if (screen.get_at(checkPos) != obstacleColor) and (wasObstacle):
+                    if (self.__screen.get_at(checkPos) != self.__obstacleColor) and (wasObstacle):
                         discPoints.append([prevPos, prevTheta])
                         wasObstacle = False
                     prevPos   = checkPos
@@ -462,26 +482,24 @@ class Robot:
         self.discontinuityPoints = discPoints
         return discPoints
     
-    def draw_discontinuity_points(self, screen, color):
+
+    def draw_discontinuity_points(self, color):
         """
         Draws the discontinuity points on the screen.
         Arguments:
-            screen: The pygame surface where the discontinuity points will be drawn.
             color: A tuple representing the RGB color of the discontinuity points.
         Returns:
             None
         """
         for dPoint in self.discontinuityPoints:
-            pygame.draw.circle(screen, color, dPoint[0], 5)
+            pygame.draw.circle(self.__screen, color, dPoint[0], 5)
 
 
-    def is_obstacle_in_path_to_goal(self, screen, goalPos, obstacleColor):
+    def is_obstacle_in_path_to_goal(self, goalPos):
         """
         Checks if an obstacle is in the path from the robot to the goal.
         Arguments:
-            screen: The pygame surface where obstacles are checked.
             goalPos: A numpy array representing the position of the goal.
-            obstacleColor: A tuple representing the RGB color of obstacles.
         Returns:
             A boolean indicating whether an obstacle is in the path to the goal.
         """
@@ -502,26 +520,11 @@ class Robot:
             checkPos   =  np.round(checkPos).astype(np.int64)
             checkPos  += self.pos
 
-            if screen.get_at(checkPos) == obstacleColor:
+            if self.__screen.get_at(checkPos) == self.__obstacleColor:
                 isObstacle = True
                 break
 
         return isObstacle
-
-
-    def draw(self, screen):
-        """
-        Draws the robot on the screen if it exists.
-        Arguments:
-            screen: The pygame surface where the robot will be drawn.
-        Returns:
-            None
-        """
-        if self.exist:
-            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
-
-            if self.TBugActive:
-                pygame.draw.circle(screen, self.__color, self.pos, self.rangeSensor, width=1)
 
 
     def __move_oneStep(self, heading):
@@ -541,40 +544,44 @@ class Robot:
 
 
 class Goal:
-    def __init__(self, color):
+    def __init__(self, color, screen, toolbarWidth):
         """
         Initializes a goal with a position, existence flag, color, and radius.
         Arguments:
             color: A tuple representing the RGB color of the goal.
+            screen: The pygame surface where the goal will be drawn.
+            toolbarWidth: The width of the toolbar to ensure the goal is drawn outside of it.
         Returns:
             None
         """
-        self.pos      = None
-        self.exist    = False
-        self.__color  = color
-        self.__radius = 20
+        self.pos            = None
+        self.exist          = False
+        self.__screen       = screen
+        self.__toolbarWidth = toolbarWidth
+        self.__color        = color
+        self.__radius       = 20
 
-    def place_goal(self, screen, button, toolbarWidth, wasMousePresed):
+
+    def place_goal(self, button, wasMousePresed):
         """
         Places the goal on the screen when the specified button is pressed and the mouse is clicked.
         Arguments:
-            screen: The pygame surface where the goal will be drawn.
             button: The button that triggers the placement of the goal.
-            toolbarWidth: The width of the toolbar to ensure the goal is placed outside of it.
             wasMousePresed: A boolean indicating if the mouse was pressed.
         Returns:
             None
         """
-        if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
+        if button.wasPressed and pygame.mouse.get_pos()[0] > self.__toolbarWidth:
             currentPos = pygame.mouse.get_pos()
-            pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
+            pygame.draw.circle(self.__screen, self.__color, currentPos, self.__radius)
 
             if wasMousePresed:
                 self.pos   = np.array(currentPos, dtype=np.int64)
                 self.exist = True
                 button.reset()
 
-        self.__draw(screen)
+        self.__draw()
+
 
     def reset(self):
         """
@@ -587,6 +594,7 @@ class Goal:
         self.pos   = None
         self.exist = False
 
+
     def get_position(self):
         """
         Returns the position of the goal.
@@ -597,16 +605,17 @@ class Goal:
         """
         return self.pos
 
-    def __draw(self, screen):
+
+    def __draw(self):
         """
         Draws the goal on the screen if it exists.
         Arguments:
-            screen: The pygame surface where the goal will be drawn.
+            None
         Returns:
             None
         """
         if self.exist:
-            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+            pygame.draw.circle(self.__screen, self.__color, self.pos, self.__radius)
 
 
 # Functions
@@ -628,6 +637,7 @@ def distance(x1, x2):
     dist = np.linalg.norm(x1 - x2)
     
     return dist
+
 
 def draw_obstacle(screen, obstacle, color, width):
     """
@@ -695,6 +705,7 @@ def draw_new_obstacle(screen, obstacleList, newObstacle, button, color, lineWidt
         if len(newObstacle.vertices) > 1:
             draw_obstacle(screen, newObstacle, color, lineWidth)
 
+
 def wrap_angle(angleRadians):
     """
     Wraps an angle in radians to the range [0, 2π].
@@ -704,6 +715,7 @@ def wrap_angle(angleRadians):
         The wrapped angle in radians.
     """
     return angleRadians % twoPi
+
 
 def mean_angle(angles):
     """
@@ -729,6 +741,7 @@ def mean_angle(angles):
     meanAngle = wrap_angle(meanAngle)
 
     return meanAngle
+
 
 def angle_diff(angle1, angle2):
     """
@@ -767,4 +780,3 @@ def linear_regression(xMin, xMax, yMin, yMax, value):
     m      = deltaY / deltaX
 
     return (m * (value - xMin) + yMin)
-
