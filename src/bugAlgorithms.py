@@ -43,6 +43,7 @@ def bug1(robot, goal):
 
     return goalReached, goalCanBeReached
 
+
 def bug2(robot, goal):
     """
     Implements the Bug 2 algorithm for robot navigation.

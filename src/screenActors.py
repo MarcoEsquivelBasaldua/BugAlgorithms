@@ -15,6 +15,7 @@ class Obstacle:
         """
         self.vertices   = []
 
+
     def add_vertice(self, vertice):
         """
         Adds a vertice to the obstacle's vertices list.
@@ -25,6 +26,7 @@ class Obstacle:
         """
         self.vertices.append(vertice)
 
+
     def reset(self):
         """
         Resets the obstacle by clearing its vertices list.
@@ -34,6 +36,7 @@ class Obstacle:
             None
         """
         self.vertices = []
+
 
 
 class Robot:
@@ -230,6 +233,7 @@ class Robot:
         self.__followingObs = False
 
         return collision
+
 
     def follow_obstacle_boundary(self, goalPos, collisionAngles):
         """
@@ -478,6 +482,7 @@ class Robot:
         self.discontinuityPoints = discPoints
         return discPoints
     
+
     def draw_discontinuity_points(self, color):
         """
         Draws the discontinuity points on the screen.
@@ -633,6 +638,7 @@ def distance(x1, x2):
     
     return dist
 
+
 def draw_obstacle(screen, obstacle, color, width):
     """
     Draws an obstacle on the screen.
@@ -699,6 +705,7 @@ def draw_new_obstacle(screen, obstacleList, newObstacle, button, color, lineWidt
         if len(newObstacle.vertices) > 1:
             draw_obstacle(screen, newObstacle, color, lineWidth)
 
+
 def wrap_angle(angleRadians):
     """
     Wraps an angle in radians to the range [0, 2π].
@@ -708,6 +715,7 @@ def wrap_angle(angleRadians):
         The wrapped angle in radians.
     """
     return angleRadians % twoPi
+
 
 def mean_angle(angles):
     """
@@ -733,6 +741,7 @@ def mean_angle(angles):
     meanAngle = wrap_angle(meanAngle)
 
     return meanAngle
+
 
 def angle_diff(angle1, angle2):
     """

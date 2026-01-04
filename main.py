@@ -30,10 +30,10 @@ if __name__ == "__main__":
     pygame.display.set_caption("Bug Algorithms")
 
     # Buttons
-    BUTTON_HEIGHT_BIG    = 80
-    BUTTON_WIDTH_BIG     = 140
-    BUTTON_HEIGHT_SMALL  = 60
-    BUTTON_WIDTH_SMALL   = 76
+    BUTTON_HEIGHT_BIG   = 80
+    BUTTON_WIDTH_BIG    = 140
+    BUTTON_HEIGHT_SMALL = 60
+    BUTTON_WIDTH_SMALL  = 76
 
     DRAW_OBSTACLE_BUTTON = screenTools.Button(30 , 40 , BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Draw Obstacle', BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)
     PLACE_GOAL_BUTTON    = screenTools.Button(30 , 160, BUTTON_WIDTH_BIG  , BUTTON_HEIGHT_BIG  , 'Place Goal'   , BUTTON_COLOR, BUTTON_PRESSED_COLOR, screen)

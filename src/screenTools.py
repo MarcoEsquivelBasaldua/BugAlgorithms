@@ -27,6 +27,7 @@ class Button:
         self.__screen       = screen
         self.__font         = pygame.font.SysFont("Arial", 20)
 
+
     def draw(self):
         """
         Draws the button on the given surface.
@@ -42,6 +43,7 @@ class Button:
 
         self.__screen.blit(text_surface, text_rect)
 
+
     def handle_event(self, event):
         """
         Handles mouse events to update the button's state.
@@ -54,6 +56,7 @@ class Button:
             self.wasPressed     = True
             self.__currentColor = self.__pressedColor
 
+
     def reset(self):
         """
         Resets the button's pressed state and color.
@@ -64,6 +67,7 @@ class Button:
         """
         self.wasPressed     = False
         self.__currentColor = self.__color
+
 
     def was_button_pressed(self):
         """
@@ -98,6 +102,7 @@ class Visualizer:
         self.__rect   = pygame.Rect(pos[0], pos[1], width, self.height)
         self.__font   = pygame.font.SysFont("Arial", fontSize)
 
+
     def draw(self, messageVar):
         """
         Draws the visualizer on the given screen with a variable message.
@@ -110,6 +115,7 @@ class Visualizer:
         text_rect    = text_surface.get_rect(center=self.__rect.center)
 
         self.__screen.blit(text_surface, text_rect)
+
 
 
 class SlideBar:
@@ -137,6 +143,7 @@ class SlideBar:
         self.__maxRange   = 100
         self.__rect       = pygame.Rect(pos[0], pos[1], width, self.height)
 
+
     def draw(self):
         """
         Draws the slide bar on the given screen.
@@ -150,6 +157,7 @@ class SlideBar:
         # Selector position
         pos = np.array((self.__sliderPos, self.pos[1] + self.height//2)).astype(int)
         pygame.draw.circle(self.__screen, self.pressedColor, pos, self.height//2 + 2)
+
 
     def handle_event(self, event):
         """
