@@ -61,7 +61,7 @@ if __name__ == "__main__":
     obstacles = []
 
     # Point Robot
-    robot = screenActors.Robot(ROBOT_COLOR)
+    robot = screenActors.Robot(ROBOT_COLOR, screen)
 
     # Goal
     goal = screenActors.Goal(GOAL_COLOR)
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
 
         # Place Robot
-        robot.place_robot(screen, PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        robot.place_robot(PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
         robot.update_range_sensor(SLIDER_RANGE.range)
 
         # Draw obstacles
@@ -199,13 +199,13 @@ if __name__ == "__main__":
                 if selectedAlgorithm == 'Tangent Bug':
                     goalReached, goalCanBeReached = bugAlgorithms.tangentBug(screen, OBSTACLE_COLOR, DISCONT_POINT_COLOR, robot, goal)
 
-                robot.draw_history(screen)
+                robot.draw_history()
 
                 pygame.time.delay(50)
             
             if goalReached or (not goalCanBeReached):
-                robot.draw_history(screen)
-                robot.draw(screen)
+                robot.draw_history()
+                robot.draw()
 
                 if goalReached:
                     GOAL_REACHED_VISUALIZER.draw(screen, 'Goal reached !!!')
