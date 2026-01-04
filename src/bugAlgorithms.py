@@ -5,11 +5,10 @@ from screenActors import distance as dist
 from screenActors import wrap_angle
 from screenActors import angle_diff
 
-def bug1(obstacleColor, robot, goal):
+def bug1(robot, goal):
     """
     Implements the Bug 1 algorithm for robot navigation.
     Args:
-        obstacleColor: The color used to represent obstacles on the screen.
         robot: The robot object that will navigate the environment.
         goal: The goal object representing the target position.
     Returns:
@@ -21,7 +20,7 @@ def bug1(obstacleColor, robot, goal):
 
     if not goalReached and goalCanBeReached:
         # Check collision
-        collision, collisionAngles = robot.check_collision(obstacleColor)
+        collision, collisionAngles = robot.check_collision()
 
         if collision:
             mustFollowObstacle = True
@@ -35,20 +34,19 @@ def bug1(obstacleColor, robot, goal):
                     mustFollowObstacle = False
 
             if mustFollowObstacle:
-                robot.follow_obstacle_boundary(goal.get_position(), collisionAngles, obstacleColor)
+                robot.follow_obstacle_boundary(goal.get_position(), collisionAngles)
             else:
-                goalCanBeReached       = not(robot.move_toward_goal(goal.get_position(), obstacleColor))
+                goalCanBeReached       = not(robot.move_toward_goal(goal.get_position()))
                 robot.goalCanBeReached = goalCanBeReached
         else:
-            _ = robot.move_toward_goal(goal.get_position(), obstacleColor)
+            _ = robot.move_toward_goal(goal.get_position())
 
     return goalReached, goalCanBeReached
 
-def bug2(obstacleColor, robot, goal):
+def bug2(robot, goal):
     """
     Implements the Bug 2 algorithm for robot navigation.
     Args:
-        obstacleColor: The color used to represent obstacles on the screen.
         robot: The robot object that will navigate the environment.
         goal: The goal object representing the target position.
     Returns:
@@ -62,7 +60,7 @@ def bug2(obstacleColor, robot, goal):
 
     if not goalReached and goalCanBeReached:
         # Check collision
-        collision, collisionAngles = robot.check_collision(obstacleColor)
+        collision, collisionAngles = robot.check_collision()
 
         if collision:
             mustFollowObstacle = True
@@ -87,22 +85,20 @@ def bug2(obstacleColor, robot, goal):
                                 mustFollowObstacle = False
 
             if mustFollowObstacle:
-                robot.follow_obstacle_boundary(goal.get_position(), collisionAngles, obstacleColor)
+                robot.follow_obstacle_boundary(goal.get_position(), collisionAngles)
             else:
-                _ = robot.move_toward_goal(goal.get_position(), obstacleColor)
+                _ = robot.move_toward_goal(goal.get_position())
         else:
-            _ = robot.move_toward_goal(goal.get_position(), obstacleColor)
+            _ = robot.move_toward_goal(goal.get_position())
 
     return goalReached, goalCanBeReached
 
 
 
-def tangentBug(obstacleColor, discPointColor, robot, goal):
+def tangentBug(robot, goal):
     """
     Implements the Tangent Bug algorithm for robot navigation.
     Args:
-        obstacleColor: The color used to represent obstacles on the screen.
-        discPointColor: The color used to represent discontinuity points on the screen.
         robot: The robot object that will navigate the environment.
         goal: The goal object representing the target position.
     Returns:
@@ -114,11 +110,10 @@ def tangentBug(obstacleColor, discPointColor, robot, goal):
 
     if not goalReached and goalCanBeReached:
         # Find and show discontinuity points
-        discPoints = robot.get_discontinuities(obstacleColor)
-        #robot.draw_discontinuity_points(screen, discPointColor)
+        discPoints = robot.get_discontinuities()
 
         # Check collision
-        collision, collisionAngles = robot.check_collision(obstacleColor)
+        collision, collisionAngles = robot.check_collision()
 
         if collision:
             mustFollowObstacle = True
@@ -132,7 +127,7 @@ def tangentBug(obstacleColor, discPointColor, robot, goal):
                 robot.goalCanBeReached = goalCanBeReached
             else:
                 # Check if goal is seen
-                if not robot.is_obstacle_in_path_to_goal(goal.get_position(), obstacleColor):
+                if not robot.is_obstacle_in_path_to_goal(goal.get_position()):
                     # Check heading to goal
                     dist2GoalXY   = goal.pos - robot.pos
                     headingToGoal = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
@@ -141,16 +136,16 @@ def tangentBug(obstacleColor, discPointColor, robot, goal):
                     newPos        = np.round(newPos).astype(int)
 
                     # Check if moving to new position collides with obstacle
-                    collisionAtNewPos, _ = robot.check_collision(obstacleColor, True, newPos)
+                    collisionAtNewPos, _ = robot.check_collision(True, newPos)
                     if not collisionAtNewPos:
                         mustFollowObstacle = False
 
             if mustFollowObstacle:
-                robot.follow_obstacle_boundary(goal.get_position(), collisionAngles, obstacleColor)
+                robot.follow_obstacle_boundary(goal.get_position(), collisionAngles)
             else:
-                _ = robot.move_toward_goal(goal.get_position(), obstacleColor)
+                _ = robot.move_toward_goal(goal.get_position())
         elif len(discPoints) > 0:
-            if robot.is_obstacle_in_path_to_goal(goal.get_position(), obstacleColor):
+            if robot.is_obstacle_in_path_to_goal(goal.get_position()):
                 # Chose a discontinuity point to follow
                 followPoint = discPoints[0][0]
                 minDist     = dist(robot.pos, followPoint) + dist(followPoint, goal.get_position())
@@ -164,11 +159,11 @@ def tangentBug(obstacleColor, discPointColor, robot, goal):
                         minDist     = currDist
                         followPoint = point
 
-                _ = robot.move_toward_goal(followPoint, obstacleColor)
+                _ = robot.move_toward_goal(followPoint)
             else:
-                _ = robot.move_toward_goal(goal.get_position(), obstacleColor)
+                _ = robot.move_toward_goal(goal.get_position())
         else:
-            _ = robot.move_toward_goal(goal.get_position(), obstacleColor)
-
+            _ = robot.move_toward_goal(goal.get_position())
+            
     return goalReached, goalCanBeReached
     

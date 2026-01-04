@@ -37,7 +37,7 @@ class Obstacle:
 
 
 class Robot:
-    def __init__(self, color, screen, obstacleColor=0, toolBarWidth=0):
+    def __init__(self, color, screen, obstacleColor, toolBarWidth=0):
         """
         Initializes a robot with a position, existence flag, position history, radius, color, and range sensor.
         Arguments:
@@ -56,7 +56,7 @@ class Robot:
         self.hitPoints        = []
         self.__color          = color
         self.__screen         = screen
-        #self.__obstacleColor  = obstacleColor
+        self.__obstacleColor  = obstacleColor
         #self.__toolBarWidth   = toolBarWidth
         self.__moving         = False
         self.__moving2Goal    = False
@@ -185,7 +185,7 @@ class Robot:
             pygame.draw.circle(self.__screen, newColor, pos, self.__radius // 3)
 
 
-    def move_toward_goal(self, goalPos, obstacleColor):
+    def move_toward_goal(self, goalPos):
         """
         Moves the robot toward the specified goal position in a straight line.
         Arguments:
@@ -215,7 +215,7 @@ class Robot:
         self.pos += newPos
 
         # Check collision on new proposed position
-        collision, _ = self.check_collision(obstacleColor, True, self.pos)
+        collision, _ = self.check_collision(True, self.pos)
 
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
         self.draw()
@@ -229,13 +229,12 @@ class Robot:
 
         return collision
 
-    def follow_obstacle_boundary(self, goalPos, collisionAngles, obstacleColor):
+    def follow_obstacle_boundary(self, goalPos, collisionAngles):
         """
         Moves the robot along the boundary of an obstacle based on collision angles.
         Arguments:
             goalPos: A tuple representing the (x, y) coordinates of the goal position.
             collisionAngles: A list of angles where the robot is in contact with the obstacle.
-            obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
             None
         """
@@ -289,7 +288,7 @@ class Robot:
         pos    = self.pos + newPos
 
         # Check if new position is still in contact to obstacle
-        collision, _ = self.check_collision(obstacleColor, True, pos)
+        collision, _ = self.check_collision(True, pos)
 
         if collision: # Push robot away from obstacle
             # Get angles difference, map to a distance and pull robot away from obstacle
@@ -301,7 +300,7 @@ class Robot:
             pos            += deltaXY
 
         # Check if new position is still in contact to obstacle
-        collision, _ = self.check_collision(obstacleColor, True, pos)
+        collision, _ = self.check_collision(True, pos)
 
         if not collision: # Pull robot toward the obstacle
             steps2Check = 20
@@ -310,7 +309,7 @@ class Robot:
                 newPos    = np.round(newPos).astype(int)
                 pos2Check = pos + newPos
 
-                coll, _ = self.check_collision(obstacleColor, True, pos2Check)
+                coll, _ = self.check_collision(True, pos2Check)
 
                 if coll:
                     pos = pos2Check
@@ -360,11 +359,12 @@ class Robot:
         self.rangeSensor += (self.__radius)
         
 
-    def check_collision(self, obstacleColor, localUse = False, pos = None):
+    def check_collision(self, localUse = False, pos = None):
         """
         Checks for collisions around the robot using its range sensor.
         Arguments:
-            obstacleColor: A tuple representing the RGB color of the obstacles.
+            localUse: A boolean indicating whether to use a local position for collision checking.
+            pos: A numpy array representing the position to check for collisions (used if localUse is True).
         Returns:
             A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
@@ -385,7 +385,7 @@ class Robot:
             checkPos  =  np.round(checkPos).astype(np.int64)
             checkPos += usePos
 
-            if self.__screen.get_at(checkPos) == obstacleColor:
+            if self.__screen.get_at(checkPos) == self.__obstacleColor:
                 collision = True
                 if len(firstAndLastContact) < 2:
                     firstAndLastContact.append(angle)
@@ -395,11 +395,9 @@ class Robot:
         return collision, firstAndLastContact
     
 
-    def get_discontinuities(self, obstacleColor):
+    def get_discontinuities(self):
         """
         Gets the discontinuity points detected by the robot's range sensor.
-        Arguments:
-            obstacleColor: A tuple representing the RGB color of the obstacles.
         Returns:
             A list of discontinuity points detected by the robot's range sensor.
         """
@@ -432,7 +430,7 @@ class Robot:
                 prevPos = checkPos - np.array((2, 2)).astype(int)
                 break
 
-            if self.__screen.get_at(checkPos) == obstacleColor:
+            if self.__screen.get_at(checkPos) == self.__obstacleColor:
                 wasObstacle = True
                 prevPos     = checkPos
                 break
@@ -455,7 +453,7 @@ class Robot:
                     prevPos = checkPos - np.array((2, 2)).astype(int)
                     break
 
-                if self.__screen.get_at(checkPos) == obstacleColor:
+                if self.__screen.get_at(checkPos) == self.__obstacleColor:
                     if not wasObstacle:
                         discPoints.append([checkPos, theta])
                     elif np.abs(prevRadius - radius) > 23:
@@ -468,7 +466,7 @@ class Robot:
                     prevRadius = radius
                     break
                 if i == (nOfSteps-1):
-                    if (self.__screen.get_at(checkPos) != obstacleColor) and (wasObstacle):
+                    if (self.__screen.get_at(checkPos) != self.__obstacleColor) and (wasObstacle):
                         discPoints.append([prevPos, prevTheta])
                         wasObstacle = False
                     prevPos   = checkPos
@@ -490,12 +488,11 @@ class Robot:
             pygame.draw.circle(self.__screen, color, dPoint[0], 5)
 
 
-    def is_obstacle_in_path_to_goal(self, goalPos, obstacleColor):
+    def is_obstacle_in_path_to_goal(self, goalPos):
         """
         Checks if an obstacle is in the path from the robot to the goal.
         Arguments:
             goalPos: A numpy array representing the position of the goal.
-            obstacleColor: A tuple representing the RGB color of obstacles.
         Returns:
             A boolean indicating whether an obstacle is in the path to the goal.
         """
@@ -516,7 +513,7 @@ class Robot:
             checkPos   =  np.round(checkPos).astype(np.int64)
             checkPos  += self.pos
 
-            if self.__screen.get_at(checkPos) == obstacleColor:
+            if self.__screen.get_at(checkPos) == self.__obstacleColor:
                 isObstacle = True
                 break
 
