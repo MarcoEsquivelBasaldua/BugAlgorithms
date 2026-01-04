@@ -215,5 +215,4 @@ if __name__ == "__main__":
         wasMousePresed = False
         pygame.display.flip()    # Update the display
         
-
     pygame.quit()
