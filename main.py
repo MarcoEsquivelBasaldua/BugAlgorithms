@@ -64,7 +64,7 @@ if __name__ == "__main__":
     robot = screenActors.Robot(ROBOT_COLOR, screen, OBSTACLE_COLOR, TOOLBAR_WIDTH)
 
     # Goal
-    goal = screenActors.Goal(GOAL_COLOR)
+    goal = screenActors.Goal(GOAL_COLOR, screen, TOOLBAR_WIDTH)
 
     # Selected algorithm variable
     selectedAlgorithm = ''
@@ -122,7 +122,7 @@ if __name__ == "__main__":
                                      OBSTACLE_WIDTH, TOOLBAR_WIDTH, wasMousePresed)
 
         # Place Goal
-        goal.place_goal(screen, PLACE_GOAL_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        goal.place_goal(PLACE_GOAL_BUTTON, wasMousePresed)
 
         # Select Bug Algorithm
         if BUG1_BUTTON.was_button_pressed():

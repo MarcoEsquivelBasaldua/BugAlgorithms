@@ -539,40 +539,44 @@ class Robot:
 
 
 class Goal:
-    def __init__(self, color):
+    def __init__(self, color, screen, toolbarWidth):
         """
         Initializes a goal with a position, existence flag, color, and radius.
         Arguments:
             color: A tuple representing the RGB color of the goal.
+            screen: The pygame surface where the goal will be drawn.
+            toolbarWidth: The width of the toolbar to ensure the goal is drawn outside of it.
         Returns:
             None
         """
-        self.pos      = None
-        self.exist    = False
-        self.__color  = color
-        self.__radius = 20
+        self.pos            = None
+        self.exist          = False
+        self.__screen       = screen
+        self.__toolbarWidth = toolbarWidth
+        self.__color        = color
+        self.__radius       = 20
 
-    def place_goal(self, screen, button, toolbarWidth, wasMousePresed):
+
+    def place_goal(self, button, wasMousePresed):
         """
         Places the goal on the screen when the specified button is pressed and the mouse is clicked.
         Arguments:
-            screen: The pygame surface where the goal will be drawn.
             button: The button that triggers the placement of the goal.
-            toolbarWidth: The width of the toolbar to ensure the goal is placed outside of it.
             wasMousePresed: A boolean indicating if the mouse was pressed.
         Returns:
             None
         """
-        if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
+        if button.wasPressed and pygame.mouse.get_pos()[0] > self.__toolbarWidth:
             currentPos = pygame.mouse.get_pos()
-            pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
+            pygame.draw.circle(self.__screen, self.__color, currentPos, self.__radius)
 
             if wasMousePresed:
                 self.pos   = np.array(currentPos, dtype=np.int64)
                 self.exist = True
                 button.reset()
 
-        self.__draw(screen)
+        self.__draw()
+
 
     def reset(self):
         """
@@ -585,6 +589,7 @@ class Goal:
         self.pos   = None
         self.exist = False
 
+
     def get_position(self):
         """
         Returns the position of the goal.
@@ -595,16 +600,17 @@ class Goal:
         """
         return self.pos
 
-    def __draw(self, screen):
+
+    def __draw(self):
         """
         Draws the goal on the screen if it exists.
         Arguments:
-            screen: The pygame surface where the goal will be drawn.
+            None
         Returns:
             None
         """
         if self.exist:
-            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+            pygame.draw.circle(self.__screen, self.__color, self.pos, self.__radius)
 
 
 # Functions
