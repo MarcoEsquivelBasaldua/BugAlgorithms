@@ -37,7 +37,7 @@ class Obstacle:
 
 
 class Robot:
-    def __init__(self, color, rangeSensor = 0):
+    def __init__(self, color):
         """
         Initializes a robot with a position, existence flag, position history, radius, color, and range sensor.
         Arguments:
@@ -50,25 +50,24 @@ class Robot:
         self.goalReached      = False
         self.goalCanBeReached = True
         self.heading          = 0.0
-        self.__step           = 3
+        self.stepSize         = 3
         self.__nearGoalTh     = 5
         self.__moving         = False
         self.__posHistory     = []
         self.__radius         = 10
         self.__color          = color
-        self.__rangeSensor    = max(self.__step, rangeSensor)
-        self.__rangeSensor   += (self.__radius)
+        self.__moving2Goal    = False
+        self.__followingObs   = False
+        self.__normalSign     = 1.0
+        self.hitPoints        = []
+        self.minHitPoints     = 38
+        self.obsEncircled     = False
 
         # Collision check flag
         samples            = 12
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
-
-        # Bug 1 and Bug 2 specific variables
-        self.hitPoints    = []
-        self.minHitPoints = 38
-        self.obsEncircled = False
 
         # Bug 1 specific variables
         self.bug1Active   = False
@@ -81,6 +80,15 @@ class Robot:
         self.hitObstacle         = False
         self.prevDist2Goal       = np.inf
         self.dist2goalAtHitPoint = np.inf
+
+        # Tangent Bug specific variables
+        self.TBugActive = False
+        self.discontinuityPoints = []
+        samples            = 120
+        angleRes           = twoPi / samples
+        checkAngles        = np.array(list(range(samples))).astype(np.float64)
+        self.__theta       = angleRes * checkAngles
+        self.rangeSensor   = 0
         
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
@@ -92,16 +100,18 @@ class Robot:
         Returns:
             A flag telling if the robot is in collision or not
         """
-        if self.bug1Active or self.bug2Active:
-            # Reset hit points list
-            self.hitPoints    = []
-            self.obsEncircled = False
-        
-            if self.bug1Active:
-                self.minDist2Goal = np.inf
-            elif self.bug2Active:
-                self.hitObstacle         = False
-                self.dist2goalAtHitPoint = np.inf
+        if isinstance(goalPos, tuple):
+            goalPos = np.array(goalPos).astype(int)
+
+        # Reset hit points list
+        self.hitPoints    = []
+        self.obsEncircled = False
+
+        if self.bug1Active:
+            self.minDist2Goal = np.inf
+        elif self.bug2Active:
+            self.hitObstacle         = False
+            self.dist2goalAtHitPoint = np.inf
 
         # Get new robot position
         dist2GoalXY = goalPos - self.pos
@@ -120,6 +130,10 @@ class Robot:
         if self.bug2Active:
             self.mLineHeading = heading
 
+        # Update robot motion state
+        self.__moving2Goal  = True
+        self.__followingObs = False
+
         return collision
 
     def follow_obstacle_boundary(self, screen, goalPos, collisionAngles, obstacleColor):
@@ -133,18 +147,17 @@ class Robot:
         Returns:
             None
         """
-        if self.bug1Active or self.bug2Active:
-            # Save hit point
-            dist2Goal = distance(self.pos, goalPos)
-            self.hitPoints.append((self.pos, dist2Goal))
+        # Save hit point
+        dist2Goal = distance(self.pos, goalPos)
+        self.hitPoints.append((self.pos, dist2Goal))
 
-            if self.bug1Active:
-                self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
-            elif self.bug2Active:
-                if not self.hitObstacle:
-                    self.hitObstacle         = True
-                    self.hitpoint            = self.pos
-                    self.dist2goalAtHitPoint = distance(self.pos, goalPos)
+        if self.bug1Active:
+            self.minDist2Goal = min(self.minDist2Goal, dist2Goal)
+        elif self.bug2Active:
+            if not self.hitObstacle:
+                self.hitObstacle         = True
+                self.hitpoint            = self.pos
+                self.dist2goalAtHitPoint = distance(self.pos, goalPos)
 
         collisionAnglesLen = len(collisionAngles)
         if collisionAnglesLen > 0:
@@ -158,7 +171,20 @@ class Robot:
 
             normal2Obs = wrap_angle(normal2Obs)
 
-            heading = normal2Obs + (0.5 * np.pi)
+            if self.__moving2Goal:
+                heading1 = normal2Obs + (0.5 * np.pi)
+                heading = wrap_angle(heading1)
+
+                heading2 = normal2Obs - (0.5 * np.pi)
+                heading = wrap_angle(heading2)
+
+                if angle_diff(self.heading, heading1) > angle_diff(self.heading, heading2):
+                    self.__normalSign = -1.0
+                else:
+                    self.__normalSign = 1.0
+
+            heading = normal2Obs + (self.__normalSign * (0.5 * np.pi))
+            #heading = normal2Obs + (0.5 * np.pi)
             heading = wrap_angle(heading)
         else:
             print('This should not happen')
@@ -204,6 +230,10 @@ class Robot:
         # Save robot position into history
         self.__posHistory.append(np.array(self.pos, dtype=np.int64))
         self.draw(screen)
+
+        # Update robot motion state
+        self.__moving2Goal  = False
+        self.__followingObs = True
 
 
     def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
@@ -279,8 +309,8 @@ class Robot:
         self.heading          = 0.0
         self.__moving         = False
         self.__posHistory     = []
-        
-        # Bug 1 and Bug 2 specific variables
+        self.__moving2Goal    = False
+        self.__followingObs   = False
         self.hitPoints        = []
         self.obsEncircled     = False
 
@@ -294,6 +324,22 @@ class Robot:
         self.hitObstacle         = False
         self.dist2goalAtHitPoint = np.inf
         self.prevDist2Goal       = np.inf
+
+        # Tangent Bug specific variables
+        self.TBugActive = False
+        self.descontinuityPoints = []
+
+    def update_range_sensor(self, rangeSensor):
+        """
+        Updates the range sensor distance of the robot.
+        Arguments:
+            rangeSensor: An integer representing the new range sensor distance.
+        Returns:
+            None
+        """
+        self.rangeSensor  = max(self.stepSize, rangeSensor)
+        self.rangeSensor += (self.__radius)
+
         
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
@@ -306,6 +352,8 @@ class Robot:
             A flag telling if the robot is in collision or not
             A list containing the first and last contact angles where a collision is detected.
         """
+        rangeSensor = self.stepSize + self.__radius
+
         collision           = False
         firstAndLastContact = []
 
@@ -316,7 +364,7 @@ class Robot:
 
         for angle in self.__checkAngles:
             checkPos  = np.array((np.cos(angle), np.sin(angle)))
-            checkPos *= self.__rangeSensor
+            checkPos *= rangeSensor
             checkPos  =  np.round(checkPos).astype(np.int64)
             checkPos += usePos
 
@@ -328,6 +376,137 @@ class Robot:
                     firstAndLastContact[1] = angle
 
         return collision, firstAndLastContact
+    
+
+    def get_discontinuities(self, screen, obstacleColor):
+        """
+        Gets the discontinuity points detected by the robot's range sensor.
+        Arguments:
+            screen: The pygame surface where the robot is drawn.
+            obstacleColor: A tuple representing the RGB color of the obstacles.
+        Returns:
+            A list of discontinuity points detected by the robot's range sensor.
+        """
+        discPoints = []
+
+        # Define steps along each theta angle
+        samples    = 25
+        stepRes    = self.rangeSensor / samples
+        checkSteps = np.array(list(range(samples))).astype(np.float64)
+        steps      = stepRes * checkSteps
+
+        # Check if first theta is facing obstacle
+        theta      = self.__theta[0]
+        prevTheta  = theta
+        prevPos    = None
+        prevRadius = None
+
+        wasObstacle = False
+        for step in steps:
+            checkPos   = np.array((np.cos(theta), np.sin(theta)))
+            checkPos  *= step
+            checkPos   =  np.round(checkPos).astype(np.int64)
+            checkPos  += self.pos
+            prevRadius = distance(self.pos, checkPos)
+
+            if checkPos[0] < 200 or checkPos[1] < 0:
+                prevPos = checkPos + np.array((1, 1)).astype(int)
+                break
+            if checkPos[0] >= screen.get_width() or checkPos[1] >= screen.get_height():
+                prevPos = checkPos - np.array((2, 2)).astype(int)
+                break
+
+            if screen.get_at(checkPos) == obstacleColor:
+                wasObstacle = True
+                prevPos     = checkPos
+                break
+
+            prevPos = checkPos
+
+        nOfSteps = len(steps)
+        for theta in self.__theta[1:]:
+            for i, step in enumerate(steps):
+                checkPos  = np.array((np.cos(theta), np.sin(theta)))
+                checkPos *= step
+                checkPos  =  np.round(checkPos).astype(np.int64)
+                checkPos += self.pos
+                radius    = distance(self.pos, checkPos)
+
+                if checkPos[0] < 200 or checkPos[1] < 0:
+                    prevPos = checkPos + np.array((1, 1)).astype(int)
+                    break
+                if checkPos[0] >= screen.get_width() or checkPos[1] >= screen.get_height():
+                    prevPos = checkPos - np.array((2, 2)).astype(int)
+                    break
+
+                if screen.get_at(checkPos) == obstacleColor:
+                    if not wasObstacle:
+                        discPoints.append([checkPos, theta])
+                    elif np.abs(prevRadius - radius) > 23:
+                        discPoints.append([prevPos, prevTheta])
+                        discPoints.append([checkPos, theta])
+
+                    wasObstacle = True
+                    prevPos   = checkPos
+                    prevTheta = theta
+                    prevRadius = radius
+                    break
+                if i == (nOfSteps-1):
+                    if (screen.get_at(checkPos) != obstacleColor) and (wasObstacle):
+                        discPoints.append([prevPos, prevTheta])
+                        wasObstacle = False
+                    prevPos   = checkPos
+                    prevTheta = theta
+            prevRadius = radius
+
+        self.discontinuityPoints = discPoints
+        return discPoints
+    
+    def draw_discontinuity_points(self, screen, color):
+        """
+        Draws the discontinuity points on the screen.
+        Arguments:
+            screen: The pygame surface where the discontinuity points will be drawn.
+            color: A tuple representing the RGB color of the discontinuity points.
+        Returns:
+            None
+        """
+        for dPoint in self.discontinuityPoints:
+            pygame.draw.circle(screen, color, dPoint[0], 5)
+
+
+    def is_obstacle_in_path_to_goal(self, screen, goalPos, obstacleColor):
+        """
+        Checks if an obstacle is in the path from the robot to the goal.
+        Arguments:
+            screen: The pygame surface where obstacles are checked.
+            goalPos: A numpy array representing the position of the goal.
+            obstacleColor: A tuple representing the RGB color of obstacles.
+        Returns:
+            A boolean indicating whether an obstacle is in the path to the goal.
+        """
+        # Define steps along each theta angle
+        isObstacle = False
+        samples    = 25
+        stepRes    = self.rangeSensor / samples
+        checkSteps = np.array(list(range(samples))).astype(np.float64)
+        steps      = stepRes * checkSteps
+
+        dist2GoalXY = goalPos - self.pos
+        heading     = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
+        heading     = wrap_angle(heading)
+
+        for step in steps:
+            checkPos   = np.array((np.cos(heading), np.sin(heading)))
+            checkPos  *= step
+            checkPos   =  np.round(checkPos).astype(np.int64)
+            checkPos  += self.pos
+
+            if screen.get_at(checkPos) == obstacleColor:
+                isObstacle = True
+                break
+
+        return isObstacle
 
 
     def draw(self, screen):
@@ -341,6 +520,10 @@ class Robot:
         if self.exist:
             pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
 
+            if self.TBugActive:
+                pygame.draw.circle(screen, self.__color, self.pos, self.rangeSensor, width=1)
+
+
     def __move_oneStep(self, heading):
         """
         Moves the robot one step in the specified heading direction.
@@ -350,7 +533,7 @@ class Robot:
             A numpy array representing the change in position (x, y)."""
         heading      = wrap_angle(heading)
         self.heading = heading
-        newPos       = self.__step * np.array((np.cos(heading), np.sin(heading))).astype(float)
+        newPos       = self.stepSize * np.array((np.cos(heading), np.sin(heading))).astype(float)
         newPos       = np.round(newPos).astype(int)
 
         return newPos

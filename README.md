@@ -11,3 +11,9 @@
 ![Bug2 goal reached](./images/Bug2_goalReached.mp4.gif)
 
 ![Bug2 goal not reached](./images/Bug2_goalNotReached.mp4.gif)
+
+## Tangent Bug
+
+![Tangent bug goal reached](./images/tangentBug_GoalReached.gif)
+
+![Tangent bug goal not reached](./images/tangentBug_GoalNotReached.gif)
