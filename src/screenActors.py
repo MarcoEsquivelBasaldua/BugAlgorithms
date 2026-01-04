@@ -89,7 +89,99 @@ class Robot:
         angleRes           = twoPi / samples
         checkAngles        = np.array(list(range(samples))).astype(np.float64)
         self.__checkAngles = angleRes * checkAngles
+
+
+    def reset(self):
+        """
+        Resets the robot's position and existence flag.
+        Arguments:
+            None
+        Returns:
+            None
+        """
+        self.pos              = None
+        self.exist            = False
+        self.goalReached      = False
+        self.goalCanBeReached = True
+        self.heading          = 0.0
+        self.__moving         = False
+        self.__posHistory     = []
+        self.__moving2Goal    = False
+        self.__followingObs   = False
+        self.hitPoints        = []
+        self.obsEncircled     = False
+
+        # Bug 1 specific variables
+        self.bug1Active   = False
+        self.minDist2Goal = np.inf
+
+        # Bug 2 specific variables
+        self.bug2Active          = False
+        self.mLineHeading        = 0.0
+        self.hitObstacle         = False
+        self.dist2goalAtHitPoint = np.inf
+        self.prevDist2Goal       = np.inf
+
+        # Tangent Bug specific variables
+        self.TBugActive          = False
+        self.discontinuityPoints = []
         
+
+    def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
+        """
+        Places the robot on the screen when the specified button is pressed and the mouse is clicked.
+        Arguments:
+            screen: The pygame surface where the robot will be drawn.
+            button: The button that triggers the placement of the robot.
+            toolbarWidth: The width of the toolbar to ensure the robot is placed outside of it.
+            wasMousePresed: A boolean indicating if the mouse was pressed.
+        Returns:
+            None
+        """
+        if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
+            currentPos = pygame.mouse.get_pos()
+            pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
+
+            if wasMousePresed:
+                self.pos   = np.array(currentPos, dtype=np.int64)
+                self.exist = True
+                button.reset()
+        if not self.__moving:
+            self.draw(screen)
+
+    
+    def draw(self, screen):
+        """
+        Draws the robot on the screen if it exists.
+        Arguments:
+            screen: The pygame surface where the robot will be drawn.
+        Returns:
+            None
+        """
+        if self.exist:
+            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
+
+            if self.TBugActive:
+                pygame.draw.circle(screen, self.__color, self.pos, self.rangeSensor, width=1)
+
+    
+    def draw_history(self, screen):
+        """
+        Draws the robot's position history on the screen with a fading effect.
+        Arguments:
+            screen: The pygame surface where the history will be drawn.
+        Returns:
+            None
+        """
+        nOfSteps = len(self.__posHistory)
+
+        for i, pos in enumerate(self.__posHistory):
+            alphaColor = (i / nOfSteps) * 255
+            alphaColor = 255 - int(alphaColor)
+            newColor   = (alphaColor, alphaColor, 255)
+
+            pygame.draw.circle(screen, newColor, pos, self.__radius // 3)
+
 
     def move_toward_goal(self, screen, goalPos, obstacleColor):
         """
@@ -236,45 +328,6 @@ class Robot:
         self.__followingObs = True
 
 
-    def place_robot(self, screen, button, toolbarWidth, wasMousePresed):
-        """
-        Places the robot on the screen when the specified button is pressed and the mouse is clicked.
-        Arguments:
-            screen: The pygame surface where the robot will be drawn.
-            button: The button that triggers the placement of the robot.
-            toolbarWidth: The width of the toolbar to ensure the robot is placed outside of it.
-            wasMousePresed: A boolean indicating if the mouse was pressed.
-        Returns:
-            None
-        """
-        if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
-            currentPos = pygame.mouse.get_pos()
-            pygame.draw.circle(screen, self.__color, currentPos, self.__radius)
-
-            if wasMousePresed:
-                self.pos   = np.array(currentPos, dtype=np.int64)
-                self.exist = True
-                button.reset()
-        if not self.__moving:
-            self.draw(screen)
-
-    def draw_history(self, screen):
-        """
-        Draws the robot's position history on the screen with a fading effect.
-        Arguments:
-            screen: The pygame surface where the history will be drawn.
-        Returns:
-            None
-        """
-        nOfSteps = len(self.__posHistory)
-
-        for i, pos in enumerate(self.__posHistory):
-            alphaColor = (i / nOfSteps) * 255
-            alphaColor = 255 - int(alphaColor)
-            newColor   = (alphaColor, alphaColor, 255)
-
-            pygame.draw.circle(screen, newColor, pos, self.__radius // 3)
-
     def is_goal_reached(self, goalPos):
         """
         Checks if the robot has reached the specified goal position.
@@ -293,41 +346,7 @@ class Robot:
             self.__moving    = False
 
         return self.goalReached
-
-    def reset(self):
-        """
-        Resets the robot's position and existence flag.
-        Arguments:
-            None
-        Returns:
-            None
-        """
-        self.pos              = None
-        self.exist            = False
-        self.goalReached      = False
-        self.goalCanBeReached = True
-        self.heading          = 0.0
-        self.__moving         = False
-        self.__posHistory     = []
-        self.__moving2Goal    = False
-        self.__followingObs   = False
-        self.hitPoints        = []
-        self.obsEncircled     = False
-
-        # Bug 1 specific variables
-        self.bug1Active   = False
-        self.minDist2Goal = np.inf
-
-        # Bug 2 specific variables
-        self.bug2Active          = False
-        self.mLineHeading        = 0.0
-        self.hitObstacle         = False
-        self.dist2goalAtHitPoint = np.inf
-        self.prevDist2Goal       = np.inf
-
-        # Tangent Bug specific variables
-        self.TBugActive = False
-        self.descontinuityPoints = []
+    
 
     def update_range_sensor(self, rangeSensor):
         """
@@ -339,7 +358,6 @@ class Robot:
         """
         self.rangeSensor  = max(self.stepSize, rangeSensor)
         self.rangeSensor += (self.__radius)
-
         
 
     def check_collision(self, screen, obstacleColor, localUse = False, pos = None):
@@ -507,21 +525,6 @@ class Robot:
                 break
 
         return isObstacle
-
-
-    def draw(self, screen):
-        """
-        Draws the robot on the screen if it exists.
-        Arguments:
-            screen: The pygame surface where the robot will be drawn.
-        Returns:
-            None
-        """
-        if self.exist:
-            pygame.draw.circle(screen, self.__color, self.pos, self.__radius)
-
-            if self.TBugActive:
-                pygame.draw.circle(screen, self.__color, self.pos, self.rangeSensor, width=1)
 
 
     def __move_oneStep(self, heading):
