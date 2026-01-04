@@ -37,12 +37,15 @@ class Obstacle:
 
 
 class Robot:
-    def __init__(self, color, screen, obstacleColor, toolBarWidth=0):
+    def __init__(self, color, screen, obstacleColor, toolBarWidth):
         """
         Initializes a robot with a position, existence flag, position history, radius, color, and range sensor.
         Arguments:
             color: A tuple representing the RGB color of the robot.
             rangeSensor: An integer representing the range of the robot's sensor (default is 0).
+            screen: The pygame surface where the robot will be drawn.
+            obstacleColor: A tuple representing the RGB color of the obstacles.
+            toolBarWidth: An integer representing the width of the toolbar.
         Returns:
             None"""
         self.pos              = None
@@ -57,7 +60,7 @@ class Robot:
         self.__color          = color
         self.__screen         = screen
         self.__obstacleColor  = obstacleColor
-        #self.__toolBarWidth   = toolBarWidth
+        self.__toolBarWidth   = toolBarWidth
         self.__moving         = False
         self.__moving2Goal    = False
         self.__followingObs   = False
@@ -130,17 +133,16 @@ class Robot:
         self.discontinuityPoints = []
         
 
-    def place_robot(self, button, toolbarWidth, wasMousePresed):
+    def place_robot(self, button, wasMousePresed):
         """
         Places the robot on the screen when the specified button is pressed and the mouse is clicked.
         Arguments:
             button: The button that triggers the placement of the robot.
-            toolbarWidth: The width of the toolbar to ensure the robot is placed outside of it.
             wasMousePresed: A boolean indicating if the mouse was pressed.
         Returns:
             None
         """
-        if button.wasPressed and pygame.mouse.get_pos()[0] > toolbarWidth:
+        if button.wasPressed and pygame.mouse.get_pos()[0] > self.__toolBarWidth:
             currentPos = pygame.mouse.get_pos()
             pygame.draw.circle(self.__screen, self.__color, currentPos, self.__radius)
 

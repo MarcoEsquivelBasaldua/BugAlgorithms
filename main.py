@@ -61,7 +61,7 @@ if __name__ == "__main__":
     obstacles = []
 
     # Point Robot
-    robot = screenActors.Robot(ROBOT_COLOR, screen, OBSTACLE_COLOR)
+    robot = screenActors.Robot(ROBOT_COLOR, screen, OBSTACLE_COLOR, TOOLBAR_WIDTH)
 
     # Goal
     goal = screenActors.Goal(GOAL_COLOR)
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         SLIDER_RANGE_VISUALIZER.draw(screen, 'Range = ' + str(SLIDER_RANGE.range))
 
         # Place Robot
-        robot.place_robot(PLACE_ROBOT_BUTTON, TOOLBAR_WIDTH, wasMousePresed)
+        robot.place_robot(PLACE_ROBOT_BUTTON, wasMousePresed)
         robot.update_range_sensor(SLIDER_RANGE.range)
 
         # Draw obstacles
