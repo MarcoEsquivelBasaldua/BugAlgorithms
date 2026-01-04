@@ -14,6 +14,6 @@
 
 ## Tangent Bug
 
-![Tangent bug goal reached](./images/tangentBug_goalReached.gif)
+![Tangent bug goal reached](./images/tangentBug_GoalReached.gif)
 
-![Tangent bug goal not reached](./images/tangentBug_goalNotReached.gif)
+![Tangent bug goal not reached](./images/tangentBug_GoalNotReached.gif)
