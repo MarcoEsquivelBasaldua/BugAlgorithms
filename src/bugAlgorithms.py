@@ -5,11 +5,10 @@ from screenActors import distance as dist
 from screenActors import wrap_angle
 from screenActors import angle_diff
 
-def bug1(screen, obstacleColor, robot, goal):
+def bug1(obstacleColor, robot, goal):
     """
     Implements the Bug 1 algorithm for robot navigation.
     Args:
-        screen: The pygame surface where the robot will be drawn.
         obstacleColor: The color used to represent obstacles on the screen.
         robot: The robot object that will navigate the environment.
         goal: The goal object representing the target position.
@@ -45,11 +44,10 @@ def bug1(screen, obstacleColor, robot, goal):
 
     return goalReached, goalCanBeReached
 
-def bug2(screen, obstacleColor, robot, goal):
+def bug2(obstacleColor, robot, goal):
     """
     Implements the Bug 2 algorithm for robot navigation.
     Args:
-        screen: The pygame surface where the robot will be drawn.
         obstacleColor: The color used to represent obstacles on the screen.
         robot: The robot object that will navigate the environment.
         goal: The goal object representing the target position.
@@ -57,7 +55,7 @@ def bug2(screen, obstacleColor, robot, goal):
         goalReached: A boolean indicating if the robot has reached the goal.
         goalCanBeReached: A boolean indicating if the goal can be reached.
     """
-    headingTh = 0.08
+    headingTh = 0.087  # ~5 degrees
 
     goalReached      = robot.is_goal_reached(goal.get_position())
     goalCanBeReached = robot.goalCanBeReached
@@ -99,11 +97,10 @@ def bug2(screen, obstacleColor, robot, goal):
 
 
 
-def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
+def tangentBug(obstacleColor, discPointColor, robot, goal):
     """
     Implements the Tangent Bug algorithm for robot navigation.
     Args:
-        screen: The pygame surface where the robot will be drawn.
         obstacleColor: The color used to represent obstacles on the screen.
         discPointColor: The color used to represent discontinuity points on the screen.
         robot: The robot object that will navigate the environment.
@@ -135,7 +132,7 @@ def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
                 robot.goalCanBeReached = goalCanBeReached
             else:
                 # Check if goal is seen
-                if not robot.is_obstacle_in_path_to_goal(screen, goal.pos, obstacleColor):
+                if not robot.is_obstacle_in_path_to_goal(goal.get_position(), obstacleColor):
                     # Check heading to goal
                     dist2GoalXY   = goal.pos - robot.pos
                     headingToGoal = np.atan2(dist2GoalXY[1], dist2GoalXY[0])
@@ -153,15 +150,15 @@ def tangentBug(screen, obstacleColor, discPointColor, robot, goal):
             else:
                 _ = robot.move_toward_goal(goal.get_position(), obstacleColor)
         elif len(discPoints) > 0:
-            if robot.is_obstacle_in_path_to_goal(screen, goal.pos, obstacleColor):
+            if robot.is_obstacle_in_path_to_goal(goal.get_position(), obstacleColor):
                 # Chose a discontinuity point to follow
                 followPoint = discPoints[0][0]
-                minDist     = dist(robot.pos, followPoint) + dist(followPoint, goal.pos)
+                minDist     = dist(robot.pos, followPoint) + dist(followPoint, goal.get_position())
 
                 for discPoint in discPoints[1:]:
                     point      = discPoint[0]
                     pointAngle = discPoint[1]
-                    currDist   = dist(robot.pos, point) + dist(point, goal.pos)
+                    currDist   = dist(robot.pos, point) + dist(point, goal.get_position())
 
                     if currDist < minDist and angle_diff(pointAngle, robot.heading) < np.deg2rad(15.0):
                         minDist     = currDist

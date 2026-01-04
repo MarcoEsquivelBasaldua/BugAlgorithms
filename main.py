@@ -191,13 +191,13 @@ if __name__ == "__main__":
                                         'Goal position(' + str(goal.pos[0]) + ', ' + str(goal.pos[1]) +')')
                 
                 if selectedAlgorithm == 'Bug 1':
-                    goalReached, goalCanBeReached = bugAlgorithms.bug1(screen, OBSTACLE_COLOR, robot, goal)
+                    goalReached, goalCanBeReached = bugAlgorithms.bug1(OBSTACLE_COLOR, robot, goal)
 
                 if selectedAlgorithm == 'Bug 2':
-                    goalReached, goalCanBeReached = bugAlgorithms.bug2(screen, OBSTACLE_COLOR, robot, goal)
+                    goalReached, goalCanBeReached = bugAlgorithms.bug2(OBSTACLE_COLOR, robot, goal)
                 
                 if selectedAlgorithm == 'Tangent Bug':
-                    goalReached, goalCanBeReached = bugAlgorithms.tangentBug(screen, OBSTACLE_COLOR, DISCONT_POINT_COLOR, robot, goal)
+                    goalReached, goalCanBeReached = bugAlgorithms.tangentBug(OBSTACLE_COLOR, DISCONT_POINT_COLOR, robot, goal)
 
                 robot.draw_history()
 
