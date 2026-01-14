@@ -19,18 +19,23 @@ Bug1 is called a complete algorithm since it is able to find a path to the goal 
 
 ## Bug 2
 
-Just like Bug1 algorithm, Bug2 toggles between motion-to-goal and boundary-following but in a different way. When moving to the goal, the robot computes what is known as the \textit{m-line} which is the slope that allows arriving to the goal in a straight line. Once an obstacle is sensed, the robot circumnavigates it until the slope between its position and the goal is again the \textit{m-line}. An extra condition is required to switch again to the motion-to-goal behavior: the distance to the goal shall be shorter than when the obstacle was first encountered.
+Just like Bug1 algorithm, Bug2 toggles between motion-to-goal and boundary-following but in a different way. When moving to the goal, the robot computes what is known as the $m-line$ which is the slope that allows arriving to the goal in a straight line. Once an obstacle is sensed, the robot circumnavigates it until the slope between its position and the goal is again the $m-line$. An extra condition is required to switch again to the motion-to-goal behavior: the distance to the goal shall be shorter than when the obstacle was first encountered.
+
 ![Bug2 goal reached](./images/Bug2_goalReached.mp4.gif)
 
 Bug2 algorithm is also able to tell whether a path to the goal is possible or not. If the robot circumnavigates completly an obstacle, it can conclude that there is not a way to get to the goal.
+
 ![Bug2 goal not reached](./images/Bug2_goalNotReached.mp4.gif)
 
 ## Tangent Bug
 
-A robot executing the Tanget Bug algorithm is not only provided with a contact sensor but with a range sensor too. Using this range sensor, the robot is able to detect discontinuities ($O_i$) up to a distance \textit{R} from the current robot's position. Just like the other algorithms, Tangent bug iterates between motion-to-goal and boundary-following behaviors. First, the robot moves in a straight line to the goal until it senses an obstacle \textit{R} units away between it and the goal. The robot then moves to the $O_i$ that maximally decreases a heuristic distance to the goal, for instance $d(x, O_i) + d(O_i, q_{goal})$. At every step, the robot keeps updating all $O_i$ and moving to the right one. If the heuristic distance can no longer be decresed, the robot follows now the obstacle boundary.
+A robot executing the Tanget Bug algorithm is not only provided with a contact sensor but with a range sensor too. Using this range sensor, the robot is able to detect discontinuities ($O_i$) up to a distance $R$ from the current robot's position. Just like the other algorithms, Tangent bug iterates between motion-to-goal and boundary-following behaviors. First, the robot moves in a straight line to the goal until it senses an obstacle $R$ units away between it and the goal. The robot then moves to the $O_i$ that maximally decreases a heuristic distance to the goal, for instance $d(x, O_i) + d(O_i, q_{goal})$. At every step, the robot keeps updating all $O_i$ and moving to the right one. If the heuristic distance can no longer be decresed, the robot follows now the obstacle boundary.
 
 ![Tangent bug goal reached](./images/tangentBug_GoalReached.gif)
 
 As for the Bug2 Algorithm, if an abstacle is entirely encircled, tangent Bug concludes that no path to the goal can be found.
 
 ![Tangent bug goal not reached](./images/tangentBug_GoalNotReached.gif)
+
+
+## How to use the simulation
