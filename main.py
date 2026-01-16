@@ -165,6 +165,7 @@ if __name__ == "__main__":
 
         # Reset Options
         if RESET_PLACES_BUTTON.was_button_pressed() or RESET_ALL_BUTTON.was_button_pressed():
+            selectedAlgorithm = ''
             robot.reset()
             goal.reset()
             GO_BUTTON.reset()
@@ -175,7 +176,6 @@ if __name__ == "__main__":
 
             if RESET_ALL_BUTTON.was_button_pressed():
                 obstacles         = []
-                selectedAlgorithm = ''
                 RESET_ALL_BUTTON.reset()
 
         # Start simulation
