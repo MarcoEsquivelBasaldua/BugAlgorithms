@@ -45,31 +45,37 @@ Simulation is presented in a very intuitive way where you can draw obstacles and
 **Draw Obstacle**
 
 when pressed this button, you can draw closed polygonal obstacles in the workspace. Single line obstacles and single point obstacles are also possible.
+
 ![Draw obstacle](./images/howToUse_obstacles.gif)
 
 **Place Goal**
 
 Goal is represented as a red circle. To place it in the field, push this button and click in the spot you want to place it.
+
 ![Place goal](./images/howToUse_goal.gif)
 
 **Place Robot**
 
 Robot is a blue circle smaller than the goal. As for the goal case, place the robot on the field by pressing this button and clicking in the desired position.
+
 ![Place robot](./images/howToUse_robot.gif)
 
 **Bug1**, **Bug2**, **T bug**
 
 These are the buttons to chose between all three algorithms: Bug1, Bug2 and Tangent Bug. Note that you can only select one from the three of them. If you chose the Tangent Bug button, you may now select the robot's sensor range with the slider right under the **T Bug** button.
+
 ![Algorithms](./images/howToUse_algos.gif)
 
 **Reset**
 
 Use this button if you want to place both robot an goal in different places.
+
 ![Reset](./images/howToUse_reset.gif)
 
 **Empty**
 
 Use **Empty** to erase all that was place on the work field and start a new set up.
+
 ![Empty](./images/howToUse_empty.gif)
 
 **Go!**
