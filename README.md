@@ -1,4 +1,4 @@
-# BugAlgorithms (in progress)
+# BugAlgorithms
 
 In the problem of Navigation, we are interested in finding a collision-free motion of the robot to move from one state to another. The Bug1 and Bug2 algorithms are sensor-based planners which assume the robot as a point operating in the plane provided with a contact sensor to detect obstacles. Tangt Bug is an improvement to the Bug2 algorithm in that it determines the shortest path to the goal using a range sensor with a 360 degree infinite orientation resolution.
 
